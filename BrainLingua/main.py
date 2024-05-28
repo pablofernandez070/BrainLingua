@@ -10,6 +10,7 @@ class Aplicacion:
         self.root = root
         self.root.title("BrainLingua")
         
+        # Esto es una prueba
         # Establecer el tamaño de la ventana
         self.root.geometry("1000x650")  
         
