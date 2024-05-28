@@ -10,7 +10,6 @@ class Aplicacion:
         self.root = root
         self.root.title("BrainLingua")
         
-        # Esto es una prueba
         # Establecer el tamaño de la ventana
         self.root.geometry("1000x650")  
         
@@ -23,7 +22,7 @@ class Aplicacion:
         self.style.configure("Treeview", background="#f0f0f0", foreground="black", rowheight=25, fieldbackground="#f0f0f0")
 
         # Estilo para los botones
-        self.style.configure("TButton", background="#5dc1b9", foreground="white", padding=10)
+        self.style.configure("TButton", background="#4caf60", foreground="white", padding=10)
 
         # Cuadro de texto con dimensiones específicas
         self.text_box = tk.Text(root, width=80, height=10)
@@ -52,6 +51,10 @@ class Aplicacion:
         # Botón para importar texto desde un archivo DOCX
         self.boton_docx = ttk.Button(self.button_frame, text="Importar DOCX", command=lambda: leer_docx(self.text_box))
         self.boton_docx.grid(row=0, column=4, padx=5)
+
+        # Botón para análisis avanzado
+        self.boton_analisis_avanzado = ttk.Button(self.button_frame, text="Análisis avanzado", command=self.abrir_analisis_avanzado)
+        self.boton_analisis_avanzado.grid(row=0, column=5, padx=5)
 
         # Variable para almacenar el texto del cuadro de texto
         self.stored_text = ""
@@ -92,6 +95,35 @@ class Aplicacion:
     def clear_text_box(self):
         # Limpiar el contenido del cuadro de texto
         self.text_box.delete("1.0", tk.END)
+
+    def abrir_analisis_avanzado(self):
+        # Crear una nueva ventana para el análisis avanzado
+        self.advanced_window = tk.Toplevel(self.root)
+        self.advanced_window.title("Análisis Avanzado")
+
+        # Etiqueta y entrada de texto para la palabra a buscar
+        self.label_palabra = ttk.Label(self.advanced_window, text="Buscar palabra:")
+        self.label_palabra.pack(pady=5)
+
+        self.entry_palabra = ttk.Entry(self.advanced_window, width=30)
+        self.entry_palabra.pack(pady=5)
+
+        # Botón para iniciar la búsqueda
+        self.boton_buscar = ttk.Button(self.advanced_window, text="Buscar", command=self.buscar_palabra)
+        self.boton_buscar.pack(pady=5)
+
+    def buscar_palabra(self):
+        # Obtener la palabra a buscar
+        palabra = self.entry_palabra.get().strip()
+        if not palabra:
+            return
+
+        # Contar las ocurrencias de la palabra en el texto almacenado
+        count = self.stored_text.lower().split().count(palabra.lower())
+
+        # Mostrar el resultado en una etiqueta
+        self.resultado_label = ttk.Label(self.advanced_window, text=f"La palabra '{palabra}' aparece {count} veces.")
+        self.resultado_label.pack(pady=5)
 
 def main():
     root = tk.Tk()
