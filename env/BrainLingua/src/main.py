@@ -1,11 +1,12 @@
-# aplicacion.py
 import tkinter as tk
 from tkinter import ttk
 from tkinter import PhotoImage
 from PIL import Image, ImageTk 
 from text_analysis import TextAnalyzer
+from AudioRecorder import AudioRecorder
 from menu import MenuBar
 from importar import leer_pdf, leer_txt, leer_docx
+import speech_recognition as sr
 
 class Aplicacion:
     def __init__(self, root):
@@ -47,9 +48,8 @@ class Aplicacion:
         self.welcome_label = tk.Label(root, text=self.welcome_text, justify="left", bg="white")
         self.welcome_label.grid(row=0, column=1, columnspan=2, pady=(5, 0), padx=10, sticky="w")  # Alineado a la izquierda y ocupando dos columnas
 
-
-        # Cuadro de texto con dimensiones específicas
-        self.text_box = tk.Text(root, width=80, height=10, borderwidth=2, relief="solid", bg='#EAE7E6')
+        # Cuadro de texto con dimensiones específicas y borde
+        self.text_box = tk.Text(root, width=80, height=10, borderwidth=2, relief="solid")
         self.text_box.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
 
         # Frame para los botones
@@ -80,6 +80,11 @@ class Aplicacion:
         self.boton_analisis_avanzado = ttk.Button(self.button_frame, text="Análisis avanzado", command=self.abrir_analisis_avanzado)
         self.boton_analisis_avanzado.grid(row=2, column=1, padx=5, pady=5)  # Este botón ocupa la segunda fila
 
+        # Botón para grabar voz
+        self.audio_recorder = AudioRecorder(self.root, self.text_box)
+        self.boton_grabar = ttk.Button(self.button_frame, text="Grabar Voz", command=self.audio_recorder.record_voice)
+        self.boton_grabar.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
+
         # Variable para almacenar el texto del cuadro de texto
         self.stored_text = ""
 
@@ -89,6 +94,7 @@ class Aplicacion:
         # Configurar el Treeview para mostrar los resultados en una tabla
         self.tree = ttk.Treeview(root, show="headings")
         self.tree.grid(row=2, column=0, columnspan=3, sticky="nsew")
+
 
         # Asegurarse de que las columnas y filas se expandan cuando se redimensione la ventana
         self.root.grid_columnconfigure(0, weight=1)
@@ -155,7 +161,6 @@ class Aplicacion:
         # Mostrar el resultado en una etiqueta
         self.resultado_label = ttk.Label(self.advanced_window, text=f"La palabra '{palabra}' aparece {count} veces.")
         self.resultado_label.pack(pady=5)
-
 def main():
     root = tk.Tk()
     app = Aplicacion(root)
