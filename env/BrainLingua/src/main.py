@@ -1,6 +1,8 @@
 # aplicacion.py
 import tkinter as tk
 from tkinter import ttk
+from tkinter import PhotoImage
+from PIL import Image, ImageTk 
 from text_analysis import TextAnalyzer
 from menu import MenuBar
 from importar import leer_pdf, leer_txt, leer_docx
@@ -11,7 +13,8 @@ class Aplicacion:
         self.root.title("BrainLingua")
         
         # Establecer el tamaño de la ventana
-        self.root.geometry("1000x650")  
+        self.root.geometry("1000x800")
+        self.root.configure(bg="white")
         
         # Inicializar la barra de menú
         self.menu_bar = MenuBar(root)
@@ -19,42 +22,63 @@ class Aplicacion:
         # Estilo para el Treeview
         self.style = ttk.Style()
         self.style.theme_use("clam")
-        self.style.configure("Treeview", background="#f0f0f0", foreground="black", rowheight=25, fieldbackground="#f0f0f0")
+        self.style.configure("Treeview", foreground="black", rowheight=25)
 
         # Estilo para los botones
-        self.style.configure("TButton", background="#4caf60", foreground="white", padding=10)
+        self.style.configure("TButton", background="#537AF5", foreground="white", padding=10)
+        self.style.map("TButton", background=[('active', '#537AF5'), ('pressed', '#537AF5')])
+
+        # Imagen logotipo
+        # Cargar la imagen del logotipo
+        self.logo_image = Image.open("env/BrainLingua/src/img/prueba_logo.png")  # Asegúrate de tener una imagen llamada "logo.png"
+        self.logo_image = self.logo_image.resize((40, 40))  # Reducir el tamaño del logotipo
+        self.logo_photo = ImageTk.PhotoImage(self.logo_image)
+
+        # Cargar la imagen para el botón desde el archivo
+        self.imagen_boton_delete = PhotoImage(file="env/BrainLingua/src/img/Delete.png")
+        self.imagen_boton_delete = self.imagen_boton_delete.subsample(8, 8)
+
+        # Crear un Label para mostrar el logotipo
+        self.logo_label = tk.Label(root, image=self.logo_photo)
+        self.logo_label.grid(row=0, column=0, pady=(5, 0), padx=5, sticky="w")  # Alineado a la izquierda
+
+        # Texto de bienvenida
+        self.welcome_text = "¡Bienvenido a BrainLingua!\nEste programa realiza análisis de texto y ofrece diversas funcionalidades para trabajar con documentos de texto."
+        self.welcome_label = tk.Label(root, text=self.welcome_text, justify="left", bg="white")
+        self.welcome_label.grid(row=0, column=1, columnspan=2, pady=(5, 0), padx=10, sticky="w")  # Alineado a la izquierda y ocupando dos columnas
+
 
         # Cuadro de texto con dimensiones específicas
-        self.text_box = tk.Text(root, width=80, height=10)
-        self.text_box.pack(pady=5)
+        self.text_box = tk.Text(root, width=80, height=10, borderwidth=2, relief="solid", bg='#EAE7E6')
+        self.text_box.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
 
         # Frame para los botones
-        self.button_frame = tk.Frame(root)
-        self.button_frame.pack(pady=5)
+        self.button_frame = tk.Frame(root, bg="white")
+        self.button_frame.grid(row=1, column=2, padx=5, pady=5)
 
-        # Botón que almacena el texto del cuadro de texto en una variable
+        # Botón analizar
         self.boton01 = ttk.Button(self.button_frame, text="Analyze", command=self.store_and_display_analysis)
-        self.boton01.grid(row=0, column=0, padx=5)
+        self.boton01.grid(row=0, column=0, padx=5, pady=5)
 
         # Botón para limpiar el cuadro de texto
-        self.boton_limpiar = ttk.Button(self.button_frame, text="Limpiar", command=self.clear_text_box)
-        self.boton_limpiar.grid(row=0, column=1, padx=5)
+        self.boton_limpiar = ttk.Button(self.button_frame, image=self.imagen_boton_delete, command=self.clear_text_box)
+        self.boton_limpiar.grid(row=0, column=1, padx=5, pady=5)
 
         # Botón para importar texto desde un archivo PDF
         self.boton_pdf = ttk.Button(self.button_frame, text="Importar PDF", command=lambda: leer_pdf(self.text_box))
-        self.boton_pdf.grid(row=0, column=2, padx=5)
+        self.boton_pdf.grid(row=1, column=0, padx=5, pady=5)
 
         # Botón para importar texto desde un archivo TXT
         self.boton_txt = ttk.Button(self.button_frame, text="Importar TXT", command=lambda: leer_txt(self.text_box))
-        self.boton_txt.grid(row=0, column=3, padx=5)
+        self.boton_txt.grid(row=1, column=1, padx=5, pady=5)
 
         # Botón para importar texto desde un archivo DOCX
         self.boton_docx = ttk.Button(self.button_frame, text="Importar DOCX", command=lambda: leer_docx(self.text_box))
-        self.boton_docx.grid(row=0, column=4, padx=5)
+        self.boton_docx.grid(row=2, column=0, padx=5, pady=5)
 
         # Botón para análisis avanzado
         self.boton_analisis_avanzado = ttk.Button(self.button_frame, text="Análisis avanzado", command=self.abrir_analisis_avanzado)
-        self.boton_analisis_avanzado.grid(row=0, column=5, padx=5)
+        self.boton_analisis_avanzado.grid(row=2, column=1, padx=5, pady=5)  # Este botón ocupa la segunda fila
 
         # Variable para almacenar el texto del cuadro de texto
         self.stored_text = ""
@@ -64,7 +88,13 @@ class Aplicacion:
 
         # Configurar el Treeview para mostrar los resultados en una tabla
         self.tree = ttk.Treeview(root, show="headings")
-        self.tree.pack(fill=tk.BOTH, expand=True)
+        self.tree.grid(row=2, column=0, columnspan=3, sticky="nsew")
+
+        # Asegurarse de que las columnas y filas se expandan cuando se redimensione la ventana
+        self.root.grid_columnconfigure(0, weight=1)
+        self.root.grid_columnconfigure(1, weight=1)
+        self.root.grid_columnconfigure(2, weight=1)
+        self.root.grid_rowconfigure(1, weight=1)
 
     def store_and_display_analysis(self):
         # Limpiar la tabla antes de insertar nuevos datos
@@ -97,7 +127,8 @@ class Aplicacion:
         self.text_box.delete("1.0", tk.END)
 
     def abrir_analisis_avanzado(self):
-        # Crear una nueva ventana para el análisis avanzado
+        # Crear una nueva ventana para el
+
         self.advanced_window = tk.Toplevel(self.root)
         self.advanced_window.title("Análisis Avanzado")
 

@@ -1,10 +1,16 @@
-# menu.py
 import tkinter as tk
 from tkinter import ttk
 
 class MenuBar:
     def __init__(self, root):
         self.root = root
+
+        # Crear un objeto Style
+        self.style = ttk.Style()
+
+        # Configurar el estilo de la barra de menú
+        self.style.theme_use('clam')
+        self.style.configure('MenuBar.TMenubutton', background='#ADD8E6')  # Configurar el color de fondo a azul claro
 
         # Crear un objeto Menu
         self.menu_bar = tk.Menu(root)
