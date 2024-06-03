@@ -14,6 +14,7 @@ from menu import MenuBar
 from importar import leer_pdf, leer_txt, leer_docx
 from SpellCheckManager import SpellCheckManager
 import tkinter.filedialog as filedialog
+from audio import transcribe_audio
 
 class Aplicacion:
     def __init__(self, root):
