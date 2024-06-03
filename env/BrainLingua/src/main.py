@@ -13,6 +13,7 @@ from text_analysis import TextAnalyzer
 from menu import MenuBar
 from importar import leer_pdf, leer_txt, leer_docx
 from SpellCheckManager import SpellCheckManager
+import tkinter.filedialog as filedialog
 
 class Aplicacion:
     def __init__(self, root):
@@ -94,7 +95,11 @@ class Aplicacion:
 
         #Boton para exportar a EXCEL
         self.boton_exportar_excel = ttk.Button(self.button_frame, text="Exportar a Excel", command=self.exportar_a_excel)
-        self.boton_exportar_excel.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
+        self.boton_exportar_excel.grid(row=3, column=0, padx=5, pady=5)
+
+        # Botón para transcribir audio
+        self.boton_transcribir_audio = ttk.Button(self.button_frame, text="Transcribir Audio", command=self.transcribe_audio_from_button)
+        self.boton_transcribir_audio.grid(row=3, column=1, padx=5, pady=5)
 
         # En el método __init__ de la clase Aplicacion
         self.boton_grafica = ttk.Button(self.button_frame, text="Convertir a gráfica", command=self.convertir_a_grafica)
@@ -281,6 +286,18 @@ class Aplicacion:
                 start_index = end_index
 
         self.text_box.tag_config("highlight", foreground="red")
+    
+    def transcribe_audio_from_button(self):
+    # Mostrar el cuadro de diálogo para seleccionar un archivo MP3
+        audio_file_path = filedialog.askopenfilename(filetypes=[("Archivos de audio MP3", "*.mp3")])
+
+        # Verificar si el usuario seleccionó un archivo
+        if audio_file_path:
+            # Transcribir el audio
+            transcription = transcribe_audio(audio_file_path)
+            print("Texto transrito:", transcription)
+        else:
+            print("No se seleccionó ningún archivo MP3.")
 
 
 def main():
