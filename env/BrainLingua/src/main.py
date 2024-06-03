@@ -1,7 +1,11 @@
 # aplicacion.py
 import tkinter as tk
+import csv
+import openpyxl
 from tkinter import ttk
 from tkinter import PhotoImage
+from tkinter import filedialog
+from tkinter import messagebox
 from PIL import Image, ImageTk 
 from text_analysis import TextAnalyzer
 from menu import MenuBar
@@ -11,6 +15,7 @@ class Aplicacion:
     def __init__(self, root):
         self.root = root
         self.root.title("BrainLingua")
+        self.analisis_realizado = False
         
         # Establecer el tamaño de la ventana
         self.root.geometry("1000x800")
@@ -80,6 +85,10 @@ class Aplicacion:
         self.boton_analisis_avanzado = ttk.Button(self.button_frame, text="Análisis avanzado", command=self.abrir_analisis_avanzado)
         self.boton_analisis_avanzado.grid(row=2, column=1, padx=5, pady=5)  # Este botón ocupa la segunda fila
 
+        #Boton para exportar a EXCEL
+        self.boton_exportar_excel = ttk.Button(self.button_frame, text="Exportar a CSV", command=self.exportar_a_excel)
+        self.boton_exportar_excel.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
+
         # Variable para almacenar el texto del cuadro de texto
         self.stored_text = ""
 
@@ -107,11 +116,14 @@ class Aplicacion:
 
         print(f"Texto almacenado: {self.stored_text}")
 
+        self.analisis_realizado = True
+
         # Analizar el texto utilizando TextAnalyzer
-        pos_counts, total_words = self.analyzer.analyze_text(self.stored_text)
+        pos_counts, total_words, num_sentences = self.analyzer.analyze_text(self.stored_text)
+        avg_words_per_sentence = self.analyzer.average_words_per_sentence(self.stored_text)
 
         # Configurar las columnas del Treeview basado en las categorías POS
-        self.tree["columns"] = list(pos_counts.keys()) + ["Total Words"]
+        self.tree["columns"] = list(pos_counts.keys()) + ["Total Words"] + ["N Sentences"] + ["Avg Words/Sentence"]
         for pos in pos_counts.keys():
             self.tree.heading(pos, text=pos)
             self.tree.column(pos, anchor=tk.CENTER, width=100)
@@ -119,8 +131,14 @@ class Aplicacion:
         self.tree.heading("Total Words", text="Total Words")
         self.tree.column("Total Words", anchor=tk.CENTER, width=100)
 
+        self.tree.heading("N Sentences", text="N Sentences")
+        self.tree.column("N Sentences", anchor=tk.CENTER, width=100)
+
+        self.tree.heading("Avg Words/Sentence", text="Avg Words/Sentence")
+        self.tree.column("Avg Words/Sentence", anchor=tk.CENTER, width=150)
+
         # Insertar los resultados del análisis en la tabla
-        self.tree.insert("", "end", values=[pos_counts[pos] for pos in pos_counts.keys()] + [total_words])
+        self.tree.insert("", "end", values=[pos_counts[pos] for pos in pos_counts.keys()] + [total_words] + [num_sentences] + [avg_words_per_sentence])
 
     def clear_text_box(self):
         # Limpiar el contenido del cuadro de texto
@@ -155,6 +173,45 @@ class Aplicacion:
         # Mostrar el resultado en una etiqueta
         self.resultado_label = ttk.Label(self.advanced_window, text=f"La palabra '{palabra}' aparece {count} veces.")
         self.resultado_label.pack(pady=5)
+
+    def exportar_a_excel(self):
+        # Comprobar si se ha realizado un análisis
+        if not self.analisis_realizado:  
+            messagebox.showwarning("Exportar a Excel", "Por favor, realice un análisis antes de exportar los datos.")
+            return
+        
+        # Obtener todas las filas del Treeview
+        filas = self.tree.get_children()
+
+        # Obtener las columnas del Treeview
+        columnas = self.tree["columns"]
+
+        # Abrir un cuadro de diálogo para seleccionar la ubicación del archivo Excel
+        file_path = filedialog.asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")])
+        
+        if file_path:
+            # Crear un nuevo libro de trabajo de Excel
+            workbook = openpyxl.Workbook()
+            sheet = workbook.active
+
+            # Escribir los encabezados de las columnas
+            for idx, columna in enumerate(columnas, start=1):
+                sheet.cell(row=1, column=idx, value=columna)
+
+            # Escribir los datos de cada fila
+            for idx, fila in enumerate(filas, start=2):
+                # Obtener los valores de la fila
+                valores_fila = [self.tree.set(fila, columna) for columna in columnas]
+                
+                # Escribir los valores en el archivo Excel
+                for col, valor in enumerate(valores_fila, start=1):
+                    sheet.cell(row=idx, column=col, value=valor)
+
+            # Guardar el archivo Excel
+            workbook.save(file_path)
+
+            messagebox.showinfo("Exportar a Excel", "Los datos han sido exportados correctamente.")
+
 
 def main():
     root = tk.Tk()
