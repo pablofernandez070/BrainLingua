@@ -3,6 +3,7 @@ import tkinter as tk
 import csv
 import openpyxl
 import matplotlib.pyplot as plt
+import re
 from tkinter import ttk
 from tkinter import PhotoImage
 from tkinter import filedialog
@@ -11,11 +12,13 @@ from PIL import Image, ImageTk
 from text_analysis import TextAnalyzer
 from menu import MenuBar
 from importar import leer_pdf, leer_txt, leer_docx
+from SpellCheckManager import SpellCheckManager
 
 class Aplicacion:
     def __init__(self, root):
         self.root = root
         self.root.title("BrainLingua")
+        self.Spell_check_manager = SpellCheckManager(language='es')
         self.analisis_realizado = False
         
         # Establecer el tamaño de la ventana
@@ -58,6 +61,9 @@ class Aplicacion:
         self.text_box = tk.Text(root, width=80, height=10, borderwidth=2, relief="solid", bg='#EAE7E6')
         self.text_box.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
 
+        # Registrar el evento FocusOut para el cuadro de texto
+        self.text_box.bind("<FocusOut>", self.resaltar_errores_ortograficos)
+
         # Frame para los botones
         self.button_frame = tk.Frame(root, bg="white")
         self.button_frame.grid(row=1, column=2, padx=5, pady=5)
@@ -87,7 +93,7 @@ class Aplicacion:
         self.boton_analisis_avanzado.grid(row=2, column=1, padx=5, pady=5)  # Este botón ocupa la segunda fila
 
         #Boton para exportar a EXCEL
-        self.boton_exportar_excel = ttk.Button(self.button_frame, text="Exportar a CSV", command=self.exportar_a_excel)
+        self.boton_exportar_excel = ttk.Button(self.button_frame, text="Exportar a Excel", command=self.exportar_a_excel)
         self.boton_exportar_excel.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
 
         # En el método __init__ de la clase Aplicacion
@@ -148,6 +154,8 @@ class Aplicacion:
     def clear_text_box(self):
         # Limpiar el contenido del cuadro de texto
         self.text_box.delete("1.0", tk.END)
+    
+    
 
     def abrir_analisis_avanzado(self):
         # Comprobar si se ha realizado un análisis
@@ -255,6 +263,25 @@ class Aplicacion:
         # Mostrar el gráfico en una nueva ventana
         plt.tight_layout()  # Ajustar el diseño del gráfico para evitar superposiciones
         plt.show()
+    
+    def resaltar_errores_ortograficos(self, event):
+        self.text_box.tag_remove("highlight", "1.0", tk.END)  # Remove any previous highlights
+
+        texto_actual = self.text_box.get("1.0", tk.END).strip()
+        palabras_incorrectas = self.Spell_check_manager.obtener_palabras_incorrectas(texto_actual)
+
+        for palabra in palabras_incorrectas:
+            start_index = "1.0"
+            while True:
+                start_index = self.text_box.search(palabra, start_index, tk.END)
+                if not start_index:
+                    break
+                end_index = f"{start_index}+{len(palabra)}c"
+                self.text_box.tag_add("highlight", start_index, end_index)
+                start_index = end_index
+
+        self.text_box.tag_config("highlight", foreground="red")
+
 
 def main():
     root = tk.Tk()

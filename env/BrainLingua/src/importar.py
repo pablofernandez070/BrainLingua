@@ -17,12 +17,18 @@ def leer_pdf(text_box):
         text_box.insert(tk.END, texto_completo)
 
 def leer_txt(text_box):
-    archivo_txt = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt")])
-    if archivo_txt:
-        with open(archivo_txt, "r") as file:
-            texto = file.read()
-            text_box.delete(1.0, tk.END)
-            text_box.insert(tk.END, texto)
+    file_path = filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
+    if not file_path:
+        return
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            content = file.read()
+            text_box.delete("1.0", tk.END)
+            text_box.insert(tk.END, content)
+    except Exception as e:
+        print(f"Error al leer el archivo: {e}")
+        tk.messagebox.showerror("Error", "No se pudo leer el archivo. Asegúrate de que el archivo está codificado en UTF-8.")
 
 def leer_docx(text_box):
     archivo_docx = filedialog.askopenfilename(filetypes=[("Word Files", "*.docx")])
