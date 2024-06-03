@@ -2,6 +2,7 @@
 import tkinter as tk
 import csv
 import openpyxl
+import matplotlib.pyplot as plt
 from tkinter import ttk
 from tkinter import PhotoImage
 from tkinter import filedialog
@@ -89,6 +90,10 @@ class Aplicacion:
         self.boton_exportar_excel = ttk.Button(self.button_frame, text="Exportar a CSV", command=self.exportar_a_excel)
         self.boton_exportar_excel.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
 
+        # En el método __init__ de la clase Aplicacion
+        self.boton_grafica = ttk.Button(self.button_frame, text="Convertir a gráfica", command=self.convertir_a_grafica)
+        self.boton_grafica.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
+
         # Variable para almacenar el texto del cuadro de texto
         self.stored_text = ""
 
@@ -145,6 +150,11 @@ class Aplicacion:
         self.text_box.delete("1.0", tk.END)
 
     def abrir_analisis_avanzado(self):
+        # Comprobar si se ha realizado un análisis
+        if not self.analisis_realizado:  
+            messagebox.showwarning("Error", "Por favor, ejecute un análisis antes de realizar un analisis avanzado.")
+            return
+
         # Crear una nueva ventana para el
 
         self.advanced_window = tk.Toplevel(self.root)
@@ -211,7 +221,40 @@ class Aplicacion:
             workbook.save(file_path)
 
             messagebox.showinfo("Exportar a Excel", "Los datos han sido exportados correctamente.")
+    
+    def convertir_a_grafica(self):
+        if not self.analisis_realizado:
+            messagebox.showerror("Error", "Realice un análisis primero.")
+            return
+        
+        # Obtener los datos para el gráfico
+        pos_counts, total_words, num_sentences = self.analyzer.analyze_text(self.stored_text)
+        categorias = list(pos_counts.keys())
+        valores = list(pos_counts.values())
 
+        # Añadir los datos de total_words y num_sentences a las listas
+        categorias.append("Total Words")
+        categorias.append("Num Sentences")
+        valores.append(total_words)
+        valores.append(num_sentences)
+
+        # Calcular la media de palabras por oración
+        if num_sentences != 0:
+            media_palabras_por_oracion = total_words / num_sentences
+            categorias.append("Media Palabras por Oración")
+            valores.append(media_palabras_por_oracion)
+
+        # Crear el gráfico de barras
+        plt.figure(figsize=(10, 8))
+        plt.bar(categorias, valores, color='skyblue')
+        plt.xlabel('Categorías y Métricas')
+        plt.ylabel('Frecuencia o Valor')
+        plt.title('Frecuencia de categorías gramaticales y métricas adicionales')
+        plt.xticks(rotation=45, ha='right')  # Rotar etiquetas del eje x para mayor claridad
+
+        # Mostrar el gráfico en una nueva ventana
+        plt.tight_layout()  # Ajustar el diseño del gráfico para evitar superposiciones
+        plt.show()
 
 def main():
     root = tk.Tk()
