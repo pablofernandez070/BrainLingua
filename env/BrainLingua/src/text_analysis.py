@@ -1,6 +1,5 @@
 import spacy
 from collections import Counter
-import re
 
 class TextAnalyzer:
     def __init__(self):
@@ -8,14 +7,8 @@ class TextAnalyzer:
         self.previous_searches = []
 
     def analyze_text(self, text):
-        # Dividir el texto en palabras, teniendo en cuenta la puntuación
-        palabras = re.findall(r'\b\w+\b', text)
-
-        # Reconstruir el texto dividido en palabras en una cadena
-        texto_limpio = ' '.join(palabras)
-
-        # Tokenizar y analizar el texto limpio usando SpaCy
-        doc = self.nlp(texto_limpio)
+        # Tokenizar y analizar el texto usando SpaCy
+        doc = self.nlp(text)
 
         # Dividir el texto en oraciones
         sentences = [sent.text.strip() for sent in doc.sents]
