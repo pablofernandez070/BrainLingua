@@ -90,19 +90,42 @@ class Aplicacion:
 
     def _add_buttons(self, parent_frame):
         button_options = {"width": 20}
+        # Cargar las imágenes para los botones
+        img_analysis = PhotoImage(file="env/BrainLingua/src/img/prueba_logo.png").subsample(15, 15)
+        img_import_pdf = PhotoImage(file="env/BrainLingua/src/img/PDF.png").subsample(10, 10)
+        img_import_txt = PhotoImage(file="env/BrainLingua/src/img/TXT.png").subsample(10, 10)
+        img_import_docx = PhotoImage(file="env/BrainLingua/src/img/DOCX.png").subsample(10, 10)
+        img_advanced_analysis = PhotoImage(file="env/BrainLingua/src/img/prueba_logo.png").subsample(15, 15)
+        img_export_excel = PhotoImage(file="env/BrainLingua/src/img/SAVE.png").subsample(10, 10)
+        img_transcribe_audio = PhotoImage(file="env/BrainLingua/src/img/MP3.png").subsample(10, 10)
+        img_convert_graph = PhotoImage(file="env/BrainLingua/src/img/GRAFICA.png").subsample(10, 10)
+
+        # Almacenar las imágenes para evitar que se recojan como basura
+        self.root.images = {
+            "analysis": img_analysis,
+            "import_pdf": img_import_pdf,
+            "import_txt": img_import_txt,
+            "import_docx": img_import_docx,
+            "advanced_analysis": img_advanced_analysis,
+            "export_excel": img_export_excel,
+            "transcribe_audio": img_transcribe_audio,
+            "convert_graph": img_convert_graph
+        }
+
         buttons = [
-            ("Ejecutar Análisis", self.store_and_display_analysis),
-            ("Importar PDF", lambda: leer_pdf(self.text_box)),
-            ("Importar TXT", lambda: leer_txt(self.text_box)),
-            ("Importar DOCX", lambda: leer_docx(self.text_box)),
-            ("Análisis avanzado", self.abrir_analisis_avanzado),
-            ("Exportar a Excel", self.exportar_a_excel),
-            ("Transcribir Audio", self.transcribe_audio_from_button),
-            ("Convertir a gráfica", self.convertir_a_grafica)
+            ("Ejecutar Análisis", self.store_and_display_analysis, img_analysis),
+            ("Importar PDF", lambda: leer_pdf(self.text_box), img_import_pdf),
+            ("Importar TXT", lambda: leer_txt(self.text_box), img_import_txt),
+            ("Importar DOCX", lambda: leer_docx(self.text_box), img_import_docx),
+            ("Análisis avanzado", self.abrir_analisis_avanzado, img_advanced_analysis),
+            ("Exportar a Excel", self.exportar_a_excel, img_export_excel),
+            ("Importar Audio", self.transcribe_audio_from_button, img_transcribe_audio),
+            ("Convertir a gráfica", self.convertir_a_grafica, img_convert_graph)
         ]
 
-        for i, (text, command) in enumerate(buttons):
-            ttk.Button(parent_frame, text=text, command=command, **button_options).pack(pady=5)
+        for i, (text, command, image) in enumerate(buttons):
+            ttk.Button(parent_frame, text=text, command=command, image=image, compound=tk.LEFT, **button_options).pack(pady=5)
+
 
     def _setup_treeview(self, parent_frame):
         self.tree = ttk.Treeview(parent_frame, show="headings")
