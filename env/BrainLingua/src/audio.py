@@ -1,16 +1,11 @@
 import speech_recognition as sr
+from tkinter import filedialog, Tk
 
 def transcribe_audio(audio_file):
-    # Inicializar el reconocedor de voz
     recognizer = sr.Recognizer()
-
-    # Abrir el archivo de audio
     with sr.AudioFile(audio_file) as source:
-        # Escuchar el contenido del archivo de audio
         audio_data = recognizer.record(source)
-
         try:
-            # Utilizar Google Speech Recognition para transcribir el audio
             text = recognizer.recognize_google(audio_data, language="es-ES")
             return text
         except sr.UnknownValueError:
@@ -18,10 +13,16 @@ def transcribe_audio(audio_file):
         except sr.RequestError as e:
             print(f"Error al solicitar el reconocimiento de voz; {e}")
 
+def main():
+    root = Tk()
+    root.withdraw()  # Ocultar la ventana principal de Tkinter
+    audio_file = filedialog.askopenfilename(filetypes=[("Archivos de audio MP3", "*.mp3")])
+    
+    if audio_file:
+        transcription = transcribe_audio(audio_file)
+        print("Texto transcrito:", transcription)
+    else:
+        print("No se seleccionó ningún archivo MP3.")
 
-# Ruta del archivo de audio MP3
-audio_file = "audio.mp3"
-
-# Transcribir el audio
-transcription = transcribe_audio(audio_file)
-print("Texto transrito:", transcription)
+if __name__ == "__main__":
+    main()

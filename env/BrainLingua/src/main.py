@@ -1,278 +1,184 @@
-# aplicacion.py
 import tkinter as tk
-import csv
+from tkinter import ttk, PhotoImage, filedialog, messagebox
+from PIL import Image, ImageTk
 import openpyxl
 import matplotlib.pyplot as plt
-import re
-from tkinter import ttk
-from tkinter import PhotoImage
-from tkinter import filedialog
-from tkinter import messagebox
-from PIL import Image, ImageTk 
 from text_analysis import TextAnalyzer
 from menu import MenuBar
 from importar import leer_pdf, leer_txt, leer_docx
 from SpellCheckManager import SpellCheckManager
-import tkinter.filedialog as filedialog
 from audio import transcribe_audio
 
 class Aplicacion:
     def __init__(self, root):
         self.root = root
         self.root.title("BrainLingua")
-        self.Spell_check_manager = SpellCheckManager(language='es')
-        self.analisis_realizado = False
-        
-        # Establecer el tamaño de la ventana
         self.root.geometry("1000x800")
         self.root.configure(bg="white")
         
-        # Inicializar la barra de menú
+        self.Spell_check_manager = SpellCheckManager(language='es')
+        self.analisis_realizado = False
+        
         self.menu_bar = MenuBar(root)
+        self._setup_styles()
+        self._setup_widgets()
 
-        # Estilo para el Treeview
-        self.style = ttk.Style()
-        self.style.theme_use("clam")
-        self.style.configure("Treeview", foreground="black", rowheight=25)
-
-        # Estilo para los botones
-        self.style.configure("TButton", background="#537AF5", foreground="white", padding=10)
-        self.style.map("TButton", background=[('active', '#537AF5'), ('pressed', '#537AF5')])
-
-        # Imagen logotipo
-        # Cargar la imagen del logotipo
-        self.logo_image = Image.open("env/BrainLingua/src/img/prueba_logo.png")  # Asegúrate de tener una imagen llamada "logo.png"
-        self.logo_image = self.logo_image.resize((40, 40))  # Reducir el tamaño del logotipo
-        self.logo_photo = ImageTk.PhotoImage(self.logo_image)
-
-        # Cargar la imagen para el botón desde el archivo
-        self.imagen_boton_delete = PhotoImage(file="env/BrainLingua/src/img/Delete.png")
-        self.imagen_boton_delete = self.imagen_boton_delete.subsample(8, 8)
-
-        # Crear un Label para mostrar el logotipo
-        self.logo_label = tk.Label(root, image=self.logo_photo)
-        self.logo_label.grid(row=0, column=0, pady=(5, 0), padx=5, sticky="w")  # Alineado a la izquierda
-
-        # Texto de bienvenida
-        self.welcome_text = "¡Bienvenido a BrainLingua!\nEste programa realiza análisis de texto y ofrece diversas funcionalidades para trabajar con documentos de texto."
-        self.welcome_label = tk.Label(root, text=self.welcome_text, justify="left", bg="white")
-        self.welcome_label.grid(row=0, column=1, columnspan=2, pady=(5, 0), padx=10, sticky="w")  # Alineado a la izquierda y ocupando dos columnas
-
-
-        # Cuadro de texto con dimensiones específicas
-        self.text_box = tk.Text(root, width=80, height=10, borderwidth=2, relief="solid", bg='#EAE7E6')
-        self.text_box.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
-
-        # Registrar el evento FocusOut para el cuadro de texto
-        self.text_box.bind("<FocusOut>", self.resaltar_errores_ortograficos)
-
-        # Frame para los botones
-        self.button_frame = tk.Frame(root, bg="white")
-        self.button_frame.grid(row=1, column=2, padx=5, pady=5)
-
-        # Botón analizar
-        self.boton01 = ttk.Button(self.button_frame, text="Analyze", command=self.store_and_display_analysis)
-        self.boton01.grid(row=0, column=0, padx=5, pady=5)
-
-        # Botón para limpiar el cuadro de texto
-        self.boton_limpiar = ttk.Button(self.button_frame, image=self.imagen_boton_delete, command=self.clear_text_box)
-        self.boton_limpiar.grid(row=0, column=1, padx=5, pady=5)
-
-        # Botón para importar texto desde un archivo PDF
-        self.boton_pdf = ttk.Button(self.button_frame, text="Importar PDF", command=lambda: leer_pdf(self.text_box))
-        self.boton_pdf.grid(row=1, column=0, padx=5, pady=5)
-
-        # Botón para importar texto desde un archivo TXT
-        self.boton_txt = ttk.Button(self.button_frame, text="Importar TXT", command=lambda: leer_txt(self.text_box))
-        self.boton_txt.grid(row=1, column=1, padx=5, pady=5)
-
-        # Botón para importar texto desde un archivo DOCX
-        self.boton_docx = ttk.Button(self.button_frame, text="Importar DOCX", command=lambda: leer_docx(self.text_box))
-        self.boton_docx.grid(row=2, column=0, padx=5, pady=5)
-
-        # Botón para análisis avanzado
-        self.boton_analisis_avanzado = ttk.Button(self.button_frame, text="Análisis avanzado", command=self.abrir_analisis_avanzado)
-        self.boton_analisis_avanzado.grid(row=2, column=1, padx=5, pady=5)  # Este botón ocupa la segunda fila
-
-        #Boton para exportar a EXCEL
-        self.boton_exportar_excel = ttk.Button(self.button_frame, text="Exportar a Excel", command=self.exportar_a_excel)
-        self.boton_exportar_excel.grid(row=3, column=0, padx=5, pady=5)
-
-        # Botón para transcribir audio
-        self.boton_transcribir_audio = ttk.Button(self.button_frame, text="Transcribir Audio", command=self.transcribe_audio_from_button)
-        self.boton_transcribir_audio.grid(row=3, column=1, padx=5, pady=5)
-
-        # En el método __init__ de la clase Aplicacion
-        self.boton_grafica = ttk.Button(self.button_frame, text="Convertir a gráfica", command=self.convertir_a_grafica)
-        self.boton_grafica.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
-
-        # Variable para almacenar el texto del cuadro de texto
+        self.analyzer = TextAnalyzer()
         self.stored_text = ""
 
-        # Objeto TextAnalyzer para analizar el texto
-        self.analyzer = TextAnalyzer()
+    def _setup_styles(self):
+        style = ttk.Style()
+        style.theme_use("clam")
+        style.configure("Treeview", foreground="black", rowheight=25)
+        style.configure("TButton", background="#537AF5", foreground="white", padding=10)
+        style.map("TButton", background=[('active', '#537AF5'), ('pressed', '#537AF5')])
 
-        # Configurar el Treeview para mostrar los resultados en una tabla
-        self.tree = ttk.Treeview(root, show="headings")
-        self.tree.grid(row=2, column=0, columnspan=3, sticky="nsew")
+    def _setup_widgets(self):
+        self._add_logo()
+        self._add_welcome_text()
+        self._add_text_box()
+        self._add_buttons()
+        self._setup_treeview()
 
-        # Asegurarse de que las columnas y filas se expandan cuando se redimensione la ventana
+    def _add_logo(self):
+        logo_image = Image.open("env/BrainLingua/src/img/prueba_logo.png").resize((40, 40))
+        logo_photo = ImageTk.PhotoImage(logo_image)
+        tk.Label(self.root, image=logo_photo, bg="white").grid(row=0, column=0, pady=(5, 0), padx=5, sticky="w")
+        self.root.image = logo_photo  # Prevent garbage collection
+
+    def _add_welcome_text(self):
+        welcome_text = (
+            "¡Bienvenido a BrainLingua!\n"
+            "Este programa realiza análisis de texto y ofrece diversas funcionalidades "
+            "para trabajar con documentos de texto."
+        )
+        tk.Label(self.root, text=welcome_text, justify="left", bg="white").grid(
+            row=0, column=1, columnspan=2, pady=(5, 0), padx=10, sticky="w"
+        )
+
+    def _add_text_box(self):
+        self.text_box = tk.Text(self.root, width=80, height=10, borderwidth=2, relief="solid", bg='#EAE7E6')
+        self.text_box.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
+        self.text_box.bind("<FocusOut>", self.resaltar_errores_ortograficos)
+
+        imagen_boton_delete = PhotoImage(file="env/BrainLingua/src/img/Delete.png").subsample(8, 8)
+        ttk.Button(self.root, image=imagen_boton_delete, command=self.clear_text_box).grid(row=2, column=1, padx=5, pady=5)
+        self.root.image_delete = imagen_boton_delete  # Prevent garbage collection
+
+    def _add_buttons(self):
+        button_frame = tk.Frame(self.root, bg="white")
+        button_frame.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
+
+        buttons = [
+            ("Analyze", self.store_and_display_analysis),
+            ("Importar PDF", lambda: leer_pdf(self.text_box)),
+            ("Importar TXT", lambda: leer_txt(self.text_box)),
+            ("Importar DOCX", lambda: leer_docx(self.text_box)),
+            ("Análisis avanzado", self.abrir_analisis_avanzado),
+            ("Exportar a Excel", self.exportar_a_excel),
+            ("Transcribir Audio", self.transcribe_audio_from_button),
+            ("Convertir a gráfica", self.convertir_a_grafica)
+        ]
+
+        for i, (text, command) in enumerate(buttons):
+            ttk.Button(button_frame, text=text, command=command).grid(row=i // 2, column=i % 2, padx=5, pady=5)
+
+    def _setup_treeview(self):
+        self.tree = ttk.Treeview(self.root, show="headings")
+        self.tree.grid(row=4, column=0, columnspan=3, sticky="nsew")
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_columnconfigure(1, weight=1)
         self.root.grid_columnconfigure(2, weight=1)
         self.root.grid_rowconfigure(1, weight=1)
 
     def store_and_display_analysis(self):
-        # Limpiar la tabla antes de insertar nuevos datos
         self.tree.delete(*self.tree.get_children())
-        
-        # Obtener el texto del cuadro de texto
         self.stored_text = self.text_box.get("1.0", tk.END).strip()
         if not self.stored_text:
             return
-
-        print(f"Texto almacenado: {self.stored_text}")
-
         self.analisis_realizado = True
 
-        # Analizar el texto utilizando TextAnalyzer
         pos_counts, total_words, num_sentences = self.analyzer.analyze_text(self.stored_text)
         avg_words_per_sentence = self.analyzer.average_words_per_sentence(self.stored_text)
 
-        # Configurar las columnas del Treeview basado en las categorías POS
-        self.tree["columns"] = list(pos_counts.keys()) + ["Total Words"] + ["N Sentences"] + ["Avg Words/Sentence"]
-        for pos in pos_counts.keys():
-            self.tree.heading(pos, text=pos)
-            self.tree.column(pos, anchor=tk.CENTER, width=100)
-        
-        self.tree.heading("Total Words", text="Total Words")
-        self.tree.column("Total Words", anchor=tk.CENTER, width=100)
+        columns = list(pos_counts.keys()) + ["Total Words", "N Sentences", "Avg Words/Sentence"]
+        self.tree["columns"] = columns
 
-        self.tree.heading("N Sentences", text="N Sentences")
-        self.tree.column("N Sentences", anchor=tk.CENTER, width=100)
+        for col in columns:
+            self.tree.heading(col, text=col)
+            self.tree.column(col, anchor=tk.CENTER, width=100)
 
-        self.tree.heading("Avg Words/Sentence", text="Avg Words/Sentence")
-        self.tree.column("Avg Words/Sentence", anchor=tk.CENTER, width=150)
-
-        # Insertar los resultados del análisis en la tabla
-        self.tree.insert("", "end", values=[pos_counts[pos] for pos in pos_counts.keys()] + [total_words] + [num_sentences] + [avg_words_per_sentence])
+        values = [pos_counts[pos] for pos in pos_counts.keys()] + [total_words, num_sentences, avg_words_per_sentence]
+        self.tree.insert("", "end", values=values)
 
     def clear_text_box(self):
-        # Limpiar el contenido del cuadro de texto
         self.text_box.delete("1.0", tk.END)
-    
-    
 
     def abrir_analisis_avanzado(self):
-        # Comprobar si se ha realizado un análisis
-        if not self.analisis_realizado:  
+        if not self.analisis_realizado:
             messagebox.showwarning("Error", "Por favor, ejecute un análisis antes de realizar un analisis avanzado.")
             return
 
-        # Crear una nueva ventana para el
+        advanced_window = tk.Toplevel(self.root)
+        advanced_window.title("Análisis Avanzado")
 
-        self.advanced_window = tk.Toplevel(self.root)
-        self.advanced_window.title("Análisis Avanzado")
+        ttk.Label(advanced_window, text="Buscar palabra:").pack(pady=5)
+        entry_palabra = ttk.Entry(advanced_window, width=30)
+        entry_palabra.pack(pady=5)
 
-        # Etiqueta y entrada de texto para la palabra a buscar
-        self.label_palabra = ttk.Label(self.advanced_window, text="Buscar palabra:")
-        self.label_palabra.pack(pady=5)
+        def buscar_palabra():
+            palabra = entry_palabra.get().strip()
+            if not palabra:
+                return
+            count = self.stored_text.lower().split().count(palabra.lower())
+            ttk.Label(advanced_window, text=f"La palabra '{palabra}' aparece {count} veces.").pack(pady=5)
 
-        self.entry_palabra = ttk.Entry(self.advanced_window, width=30)
-        self.entry_palabra.pack(pady=5)
-
-        # Botón para iniciar la búsqueda
-        self.boton_buscar = ttk.Button(self.advanced_window, text="Buscar", command=self.buscar_palabra)
-        self.boton_buscar.pack(pady=5)
-
-    def buscar_palabra(self):
-        # Obtener la palabra a buscar
-        palabra = self.entry_palabra.get().strip()
-        if not palabra:
-            return
-
-        # Contar las ocurrencias de la palabra en el texto almacenado
-        count = self.stored_text.lower().split().count(palabra.lower())
-
-        # Mostrar el resultado en una etiqueta
-        self.resultado_label = ttk.Label(self.advanced_window, text=f"La palabra '{palabra}' aparece {count} veces.")
-        self.resultado_label.pack(pady=5)
+        ttk.Button(advanced_window, text="Buscar", command=buscar_palabra).pack(pady=5)
 
     def exportar_a_excel(self):
-        # Comprobar si se ha realizado un análisis
-        if not self.analisis_realizado:  
+        if not self.analisis_realizado:
             messagebox.showwarning("Exportar a Excel", "Por favor, realice un análisis antes de exportar los datos.")
             return
-        
-        # Obtener todas las filas del Treeview
-        filas = self.tree.get_children()
 
-        # Obtener las columnas del Treeview
-        columnas = self.tree["columns"]
-
-        # Abrir un cuadro de diálogo para seleccionar la ubicación del archivo Excel
         file_path = filedialog.asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")])
-        
-        if file_path:
-            # Crear un nuevo libro de trabajo de Excel
-            workbook = openpyxl.Workbook()
-            sheet = workbook.active
+        if not file_path:
+            return
 
-            # Escribir los encabezados de las columnas
-            for idx, columna in enumerate(columnas, start=1):
-                sheet.cell(row=1, column=idx, value=columna)
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
 
-            # Escribir los datos de cada fila
-            for idx, fila in enumerate(filas, start=2):
-                # Obtener los valores de la fila
-                valores_fila = [self.tree.set(fila, columna) for columna in columnas]
-                
-                # Escribir los valores en el archivo Excel
-                for col, valor in enumerate(valores_fila, start=1):
-                    sheet.cell(row=idx, column=col, value=valor)
+        for idx, col in enumerate(self.tree["columns"], start=1):
+            sheet.cell(row=1, column=idx, value=col)
 
-            # Guardar el archivo Excel
-            workbook.save(file_path)
+        for idx, item in enumerate(self.tree.get_children(), start=2):
+            for col_idx, col in enumerate(self.tree["columns"], start=1):
+                sheet.cell(row=idx, column=col_idx, value=self.tree.set(item, col))
 
-            messagebox.showinfo("Exportar a Excel", "Los datos han sido exportados correctamente.")
-    
+        workbook.save(file_path)
+        messagebox.showinfo("Exportar a Excel", "Los datos han sido exportados correctamente.")
+
     def convertir_a_grafica(self):
         if not self.analisis_realizado:
             messagebox.showerror("Error", "Realice un análisis primero.")
             return
-        
-        # Obtener los datos para el gráfico
+
         pos_counts, total_words, num_sentences = self.analyzer.analyze_text(self.stored_text)
         categorias = list(pos_counts.keys())
         valores = list(pos_counts.values())
+        categorias.extend(["Total Words", "Num Sentences", "Media Palabras por Oración"])
+        valores.extend([total_words, num_sentences, total_words / num_sentences if num_sentences != 0 else 0])
 
-        # Añadir los datos de total_words y num_sentences a las listas
-        categorias.append("Total Words")
-        categorias.append("Num Sentences")
-        valores.append(total_words)
-        valores.append(num_sentences)
-
-        # Calcular la media de palabras por oración
-        if num_sentences != 0:
-            media_palabras_por_oracion = total_words / num_sentences
-            categorias.append("Media Palabras por Oración")
-            valores.append(media_palabras_por_oracion)
-
-        # Crear el gráfico de barras
         plt.figure(figsize=(10, 8))
         plt.bar(categorias, valores, color='skyblue')
         plt.xlabel('Categorías y Métricas')
         plt.ylabel('Frecuencia o Valor')
         plt.title('Frecuencia de categorías gramaticales y métricas adicionales')
-        plt.xticks(rotation=45, ha='right')  # Rotar etiquetas del eje x para mayor claridad
-
-        # Mostrar el gráfico en una nueva ventana
-        plt.tight_layout()  # Ajustar el diseño del gráfico para evitar superposiciones
+        plt.xticks(rotation=45, ha='right')
+        plt.tight_layout()
         plt.show()
-    
-    def resaltar_errores_ortograficos(self, event):
-        self.text_box.tag_remove("highlight", "1.0", tk.END)  # Remove any previous highlights
 
+    def resaltar_errores_ortograficos(self, event):
+        self.text_box.tag_remove("highlight", "1.0", tk.END)
         texto_actual = self.text_box.get("1.0", tk.END).strip()
         palabras_incorrectas = self.Spell_check_manager.obtener_palabras_incorrectas(texto_actual)
 
@@ -287,19 +193,14 @@ class Aplicacion:
                 start_index = end_index
 
         self.text_box.tag_config("highlight", foreground="red")
-    
-    def transcribe_audio_from_button(self):
-    # Mostrar el cuadro de diálogo para seleccionar un archivo MP3
-        audio_file_path = filedialog.askopenfilename(filetypes=[("Archivos de audio MP3", "*.mp3")])
 
-        # Verificar si el usuario seleccionó un archivo
+    def transcribe_audio_from_button(self):
+        audio_file_path = filedialog.askopenfilename(filetypes=[("Archivos de audio MP3", "*.mp3")])
         if audio_file_path:
-            # Transcribir el audio
             transcription = transcribe_audio(audio_file_path)
-            print("Texto transrito:", transcription)
+            print("Texto transcrito:", transcription)
         else:
             print("No se seleccionó ningún archivo MP3.")
-
 
 def main():
     root = tk.Tk()
