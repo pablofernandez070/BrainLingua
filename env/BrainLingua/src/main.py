@@ -9,10 +9,11 @@ from importar import leer_pdf, leer_txt, leer_docx
 from SpellCheckManager import SpellCheckManager
 from audio import transcribe_audio
 
+
 class Aplicacion:
     def __init__(self, root):
         self.root = root
-        self.root.title("BrainLingua")
+        self.root.title("BrainLingua NLP")
         self.root.geometry("1000x800")
         self.root.configure(bg="white")
         
@@ -52,23 +53,27 @@ class Aplicacion:
             "Este programa realiza análisis de texto y ofrece diversas funcionalidades "
             "para trabajar con documentos de texto."
         )
-        tk.Label(self.root, text=welcome_text, justify="left", bg="white").grid(
-            row=0, column=1, columnspan=2, pady=(5, 0), padx=10, sticky="w"
+        tk.Label(self.root, text=welcome_text, justify="left", bg="white", font=("Helvetica", 12)).grid(
+            row=0, column=1, columnspan=3, pady=(5, 0), padx=10, sticky="w"
         )
 
     def _add_text_box(self):
-        self.text_box = tk.Text(self.root, width=80, height=10, borderwidth=2, relief="solid", bg='#EAE7E6')
-        self.text_box.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
+        text_frame = tk.Frame(self.root, bg="white")
+        text_frame.grid(row=1, column=0, columnspan=4, padx=10, pady=10, sticky="nsew")
+
+        self.text_box = tk.Text(text_frame, width=80, height=10, borderwidth=2, relief="solid", bg='#EAE7E6')
+        self.text_box.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.text_box.bind("<FocusOut>", self.resaltar_errores_ortograficos)
 
         imagen_boton_delete = PhotoImage(file="env/BrainLingua/src/img/Delete.png").subsample(8, 8)
-        ttk.Button(self.root, image=imagen_boton_delete, command=self.clear_text_box).grid(row=2, column=1, padx=5, pady=5)
+        ttk.Button(text_frame, image=imagen_boton_delete, command=self.clear_text_box).pack(side=tk.RIGHT, padx=5, pady=5)
         self.root.image_delete = imagen_boton_delete  # Prevent garbage collection
 
     def _add_buttons(self):
         button_frame = tk.Frame(self.root, bg="white")
-        button_frame.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
+        button_frame.grid(row=2, column=0, columnspan=4, padx=10, pady=10, sticky="nsew")
 
+        button_options = {"width": 20}
         buttons = [
             ("Analyze", self.store_and_display_analysis),
             ("Importar PDF", lambda: leer_pdf(self.text_box)),
@@ -81,15 +86,15 @@ class Aplicacion:
         ]
 
         for i, (text, command) in enumerate(buttons):
-            ttk.Button(button_frame, text=text, command=command).grid(row=i // 2, column=i % 2, padx=5, pady=5)
+            ttk.Button(button_frame, text=text, command=command, **button_options).grid(row=i // 4, column=i % 4, padx=5, pady=5)
 
     def _setup_treeview(self):
         self.tree = ttk.Treeview(self.root, show="headings")
-        self.tree.grid(row=4, column=0, columnspan=3, sticky="nsew")
-        self.root.grid_columnconfigure(0, weight=1)
-        self.root.grid_columnconfigure(1, weight=1)
-        self.root.grid_columnconfigure(2, weight=1)
-        self.root.grid_rowconfigure(1, weight=1)
+        self.tree.grid(row=3, column=0, columnspan=4, padx=10, pady=10, sticky="nsew")
+        
+        for i in range(4):
+            self.root.grid_columnconfigure(i, weight=1)
+        self.root.grid_rowconfigure(3, weight=1)
 
     def store_and_display_analysis(self):
         self.tree.delete(*self.tree.get_children())
@@ -100,6 +105,7 @@ class Aplicacion:
 
         pos_counts, total_words, num_sentences = self.analyzer.analyze_text(self.stored_text)
         avg_words_per_sentence = self.analyzer.average_words_per_sentence(self.stored_text)
+
 
         columns = list(pos_counts.keys()) + ["Total Words", "N Sentences", "Avg Words/Sentence"]
         self.tree["columns"] = columns
@@ -116,7 +122,7 @@ class Aplicacion:
 
     def abrir_analisis_avanzado(self):
         if not self.analisis_realizado:
-            messagebox.showwarning("Error", "Por favor, ejecute un análisis antes de realizar un analisis avanzado.")
+            messagebox.showwarning("Error", "Por favor, ejecute un análisis antes de realizar un análisis avanzado.")
             return
 
         advanced_window = tk.Toplevel(self.root)
@@ -201,6 +207,31 @@ class Aplicacion:
             print("Texto transcrito:", transcription)
         else:
             print("No se seleccionó ningún archivo MP3.")
+
+    def store_and_display_analysis(self):
+        self.tree.delete(*self.tree.get_children())
+        self.stored_text = self.text_box.get("1.0", tk.END).strip()
+        if not self.stored_text:
+            return
+        self.analisis_realizado = True
+
+        # Analizar el texto y obtener las estadísticas
+        pos_counts, total_words, num_sentences = self.analyzer.analyze_text(self.stored_text)
+        avg_words_per_sentence = self.analyzer.average_words_per_sentence(self.stored_text)
+        count_palabras_malsonantes = self.analyzer.count_palabras_malsonantes(self.stored_text)  # Nuevo
+
+        # Definir las columnas de la tabla
+        columns = list(pos_counts.keys()) + ["Total Words", "N Sentences", "Avg Words/Sentence", "Palabras Malsonantes"]  # Modificado
+        self.tree["columns"] = columns
+
+        # Configurar las cabeceras de las columnas
+        for col in columns:
+            self.tree.heading(col, text=col)
+            self.tree.column(col, anchor=tk.CENTER, width=100)
+
+        # Insertar los valores en la tabla
+        values = [pos_counts[pos] for pos in pos_counts.keys()] + [total_words, num_sentences, avg_words_per_sentence, count_palabras_malsonantes]  # Modificado
+        self.tree.insert("", "end", values=values)
 
 def main():
     root = tk.Tk()

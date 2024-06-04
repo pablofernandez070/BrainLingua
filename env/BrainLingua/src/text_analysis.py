@@ -1,3 +1,4 @@
+from palabras_malsonantes import contar_palabras_malsonantes
 import spacy
 from collections import Counter
 
@@ -42,5 +43,9 @@ class TextAnalyzer:
         
         return average
 
+    def count_palabras_malsonantes(self, text):
+        # Utilizar la función importada desde palabras_malsonantes
+        return contar_palabras_malsonantes(text)
+    
     def get_previous_searches(self):
         return self.previous_searches
