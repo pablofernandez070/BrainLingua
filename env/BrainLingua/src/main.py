@@ -9,12 +9,11 @@ from importar import leer_pdf, leer_txt, leer_docx
 from SpellCheckManager import SpellCheckManager
 from audio import transcribe_audio
 
-
 class Aplicacion:
     def __init__(self, root):
         self.root = root
         self.root.title("BrainLingua NLP")
-        self.root.geometry("1000x800")
+        self.root.state('zoomed')  # Para iniciar la aplicación en modo maximizado
         self.root.configure(bg="white")
         
         self.Spell_check_manager = SpellCheckManager(language='es')
@@ -37,9 +36,29 @@ class Aplicacion:
     def _setup_widgets(self):
         self._add_logo()
         self._add_welcome_text()
-        self._add_text_box()
-        self._add_buttons()
-        self._setup_treeview()
+
+        # Crear frame principal
+        self.main_frame = tk.Frame(self.root, bg="white")
+        self.main_frame.grid(row=1, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+
+        # Crear frame izquierdo para los botones
+        self.left_frame = tk.Frame(self.main_frame, bg="white")
+        self.left_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+        # Crear frame derecho para el cuadro de texto y la tabla de resultados
+        self.right_frame = tk.Frame(self.main_frame, bg="white")
+        self.right_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
+
+        self._add_buttons(self.left_frame)
+        self._add_text_box(self.right_frame)
+        self._setup_treeview(self.right_frame)
+
+        # Configurar pesos para las columnas y filas del grid
+        self.main_frame.grid_columnconfigure(0, weight=1, minsize=200)
+        self.main_frame.grid_columnconfigure(1, weight=4)
+        self.main_frame.grid_rowconfigure(0, weight=1)
+        self.root.grid_columnconfigure(0, weight=1)
+        self.root.grid_rowconfigure(1, weight=1)
 
     def _add_logo(self):
         logo_image = Image.open("env/BrainLingua/src/img/prueba_logo.png").resize((40, 40))
@@ -57,9 +76,9 @@ class Aplicacion:
             row=0, column=1, columnspan=3, pady=(5, 0), padx=10, sticky="w"
         )
 
-    def _add_text_box(self):
-        text_frame = tk.Frame(self.root, bg="white")
-        text_frame.grid(row=1, column=0, columnspan=4, padx=10, pady=10, sticky="nsew")
+    def _add_text_box(self, parent_frame):
+        text_frame = tk.Frame(parent_frame, bg="white")
+        text_frame.grid(row=0, column=0, sticky="nsew")
 
         self.text_box = tk.Text(text_frame, width=80, height=10, borderwidth=2, relief="solid", bg='#EAE7E6')
         self.text_box.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -69,13 +88,10 @@ class Aplicacion:
         ttk.Button(text_frame, image=imagen_boton_delete, command=self.clear_text_box).pack(side=tk.RIGHT, padx=5, pady=5)
         self.root.image_delete = imagen_boton_delete  # Prevent garbage collection
 
-    def _add_buttons(self):
-        button_frame = tk.Frame(self.root, bg="white")
-        button_frame.grid(row=2, column=0, columnspan=4, padx=10, pady=10, sticky="nsew")
-
+    def _add_buttons(self, parent_frame):
         button_options = {"width": 20}
         buttons = [
-            ("Analyze", self.store_and_display_analysis),
+            ("Ejecutar Análisis", self.store_and_display_analysis),
             ("Importar PDF", lambda: leer_pdf(self.text_box)),
             ("Importar TXT", lambda: leer_txt(self.text_box)),
             ("Importar DOCX", lambda: leer_docx(self.text_box)),
@@ -86,15 +102,13 @@ class Aplicacion:
         ]
 
         for i, (text, command) in enumerate(buttons):
-            ttk.Button(button_frame, text=text, command=command, **button_options).grid(row=i // 4, column=i % 4, padx=5, pady=5)
+            ttk.Button(parent_frame, text=text, command=command, **button_options).pack(pady=5)
 
-    def _setup_treeview(self):
-        self.tree = ttk.Treeview(self.root, show="headings")
-        self.tree.grid(row=3, column=0, columnspan=4, padx=10, pady=10, sticky="nsew")
-        
-        for i in range(4):
-            self.root.grid_columnconfigure(i, weight=1)
-        self.root.grid_rowconfigure(3, weight=1)
+    def _setup_treeview(self, parent_frame):
+        self.tree = ttk.Treeview(parent_frame, show="headings")
+        self.tree.grid(row=1, column=0, sticky="nsew")
+        parent_frame.grid_rowconfigure(1, weight=1)
+        parent_frame.grid_columnconfigure(0, weight=1)
 
     def store_and_display_analysis(self):
         self.tree.delete(*self.tree.get_children())
@@ -103,18 +117,22 @@ class Aplicacion:
             return
         self.analisis_realizado = True
 
+        # Analizar el texto y obtener las estadísticas
         pos_counts, total_words, num_sentences = self.analyzer.analyze_text(self.stored_text)
         avg_words_per_sentence = self.analyzer.average_words_per_sentence(self.stored_text)
+        count_palabras_malsonantes = self.analyzer.count_palabras_malsonantes(self.stored_text)  # Nuevo
 
-
-        columns = list(pos_counts.keys()) + ["Total Words", "N Sentences", "Avg Words/Sentence"]
+        # Definir las columnas de la tabla
+        columns = list(pos_counts.keys()) + ["Total Words", "N Sentences", "Avg Words/Sentence", "Palabras Malsonantes"]  # Modificado
         self.tree["columns"] = columns
 
+        # Configurar las cabeceras de las columnas
         for col in columns:
             self.tree.heading(col, text=col)
             self.tree.column(col, anchor=tk.CENTER, width=100)
 
-        values = [pos_counts[pos] for pos in pos_counts.keys()] + [total_words, num_sentences, avg_words_per_sentence]
+        # Insertar los valores en la tabla
+        values = [pos_counts[pos] for pos in pos_counts.keys()] + [total_words, num_sentences, avg_words_per_sentence, count_palabras_malsonantes]  # Modificado
         self.tree.insert("", "end", values=values)
 
     def clear_text_box(self):
@@ -207,31 +225,6 @@ class Aplicacion:
             print("Texto transcrito:", transcription)
         else:
             print("No se seleccionó ningún archivo MP3.")
-
-    def store_and_display_analysis(self):
-        self.tree.delete(*self.tree.get_children())
-        self.stored_text = self.text_box.get("1.0", tk.END).strip()
-        if not self.stored_text:
-            return
-        self.analisis_realizado = True
-
-        # Analizar el texto y obtener las estadísticas
-        pos_counts, total_words, num_sentences = self.analyzer.analyze_text(self.stored_text)
-        avg_words_per_sentence = self.analyzer.average_words_per_sentence(self.stored_text)
-        count_palabras_malsonantes = self.analyzer.count_palabras_malsonantes(self.stored_text)  # Nuevo
-
-        # Definir las columnas de la tabla
-        columns = list(pos_counts.keys()) + ["Total Words", "N Sentences", "Avg Words/Sentence", "Palabras Malsonantes"]  # Modificado
-        self.tree["columns"] = columns
-
-        # Configurar las cabeceras de las columnas
-        for col in columns:
-            self.tree.heading(col, text=col)
-            self.tree.column(col, anchor=tk.CENTER, width=100)
-
-        # Insertar los valores en la tabla
-        values = [pos_counts[pos] for pos in pos_counts.keys()] + [total_words, num_sentences, avg_words_per_sentence, count_palabras_malsonantes]  # Modificado
-        self.tree.insert("", "end", values=values)
 
 def main():
     root = tk.Tk()

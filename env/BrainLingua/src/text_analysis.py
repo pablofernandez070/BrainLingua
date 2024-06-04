@@ -42,6 +42,10 @@ class TextAnalyzer:
         average = total_words / len(sentences)
         
         return average
+    
+    """def count_palabras_largas(self, text):
+        doc = self.nlp(txt)"""
+        
 
     def count_palabras_malsonantes(self, text):
         # Utilizar la función importada desde palabras_malsonantes
