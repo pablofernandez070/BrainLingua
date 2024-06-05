@@ -14,7 +14,7 @@ class Aplicacion:
         self.root = root
         self.root.title("BrainLingua NLP")
         self.root.state('zoomed')  # Para iniciar la aplicación en modo maximizado
-        self.root.configure(bg="white")
+        self.root.configure(bg="#2e2e2e")
         
         self.Spell_check_manager = SpellCheckManager(language='es')
         self.analisis_realizado = False
@@ -29,24 +29,42 @@ class Aplicacion:
     def _setup_styles(self):
         style = ttk.Style()
         style.theme_use("clam")
-        style.configure("Treeview", foreground="black", rowheight=25)
-        style.configure("TButton", background="#537AF5", foreground="white", padding=10)
-        style.map("TButton", background=[('active', '#537AF5'), ('pressed', '#537AF5')])
+        style.configure("Treeview", 
+                        background="#2e2e2e",
+                        foreground="white", 
+                        fieldbackground="#2e2e2e",
+                        rowheight=25)
+        style.configure("Treeview.Heading",
+                        background="#404040",
+                        foreground="white")
+        style.configure("TButton", 
+                        background="#207567",  # Tonalidad más oscura del verde azulado
+                        foreground="white", 
+                        padding=10)
+        style.map("TButton", 
+                background=[('active', '#1a5c52'), ('pressed', '#207567')])
+        style.configure("TLabel",
+                        background="#2e2e2e",
+                        foreground="white")
+        style.configure("TEntry",
+                        background="#2e2e2e",
+                        foreground="white",
+                        fieldbackground="#2e2e2e")
 
     def _setup_widgets(self):
         self._add_logo()
         self._add_welcome_text()
 
         # Crear frame principal
-        self.main_frame = tk.Frame(self.root, bg="white")
+        self.main_frame = tk.Frame(self.root, bg="#2e2e2e")
         self.main_frame.grid(row=1, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
 
         # Crear frame izquierdo para los botones
-        self.left_frame = tk.Frame(self.main_frame, bg="white")
+        self.left_frame = tk.Frame(self.main_frame, bg="#2e2e2e")
         self.left_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
         # Crear frame derecho para el cuadro de texto y la tabla de resultados
-        self.right_frame = tk.Frame(self.main_frame, bg="white")
+        self.right_frame = tk.Frame(self.main_frame, bg="#2e2e2e")
         self.right_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
         self._add_buttons(self.left_frame)
@@ -63,7 +81,7 @@ class Aplicacion:
     def _add_logo(self):
         logo_image = Image.open("env/BrainLingua/src/img/prueba_logo.png").resize((40, 40))
         logo_photo = ImageTk.PhotoImage(logo_image)
-        tk.Label(self.root, image=logo_photo, bg="white").grid(row=0, column=0, pady=(5, 0), padx=5, sticky="w")
+        tk.Label(self.root, image=logo_photo, bg="#2e2e2e").grid(row=0, column=0, pady=(5, 0), padx=5, sticky="w")
         self.root.image = logo_photo  # Prevent garbage collection
 
     def _add_welcome_text(self):
@@ -72,15 +90,15 @@ class Aplicacion:
             "Este programa realiza análisis de texto y ofrece diversas funcionalidades "
             "para trabajar con documentos de texto."
         )
-        tk.Label(self.root, text=welcome_text, justify="left", bg="white", font=("Helvetica", 12)).grid(
+        tk.Label(self.root, text=welcome_text, justify="left", bg="#2e2e2e", fg="white", font=("Helvetica", 12)).grid(
             row=0, column=1, columnspan=3, pady=(5, 0), padx=10, sticky="w"
         )
 
     def _add_text_box(self, parent_frame):
-        text_frame = tk.Frame(parent_frame, bg="white")
+        text_frame = tk.Frame(parent_frame, bg="#2e2e2e")
         text_frame.grid(row=0, column=0, sticky="nsew")
 
-        self.text_box = tk.Text(text_frame, width=80, height=10, borderwidth=2, relief="solid", bg='#EAE7E6')
+        self.text_box = tk.Text(text_frame, width=80, height=10, borderwidth=2, relief="solid", bg='white', fg='black', insertbackground='black', highlightthickness=2, highlightbackground='#207567')
         self.text_box.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.text_box.bind("<FocusOut>", self.resaltar_errores_ortograficos)
 
@@ -89,7 +107,7 @@ class Aplicacion:
         self.root.image_delete = imagen_boton_delete  # Prevent garbage collection
 
     def _add_buttons(self, parent_frame):
-        button_options = {"width": 20}
+        button_options = {"width": 30}
         # Cargar las imágenes para los botones
         img_analysis = PhotoImage(file="env/BrainLingua/src/img/prueba_logo.png").subsample(15, 15)
         img_import_pdf = PhotoImage(file="env/BrainLingua/src/img/PDF.png").subsample(10, 10)
@@ -126,12 +144,16 @@ class Aplicacion:
         for i, (text, command, image) in enumerate(buttons):
             ttk.Button(parent_frame, text=text, command=command, image=image, compound=tk.LEFT, **button_options).pack(pady=5)
 
-
     def _setup_treeview(self, parent_frame):
         self.tree = ttk.Treeview(parent_frame, show="headings")
         self.tree.grid(row=1, column=0, sticky="nsew")
         parent_frame.grid_rowconfigure(1, weight=1)
         parent_frame.grid_columnconfigure(0, weight=1)
+
+        # Ajustar las columnas para que se autoescale al contenido
+        self.tree.column("#0", stretch=tk.YES)
+        for col in self.tree["columns"]:
+            self.tree.column(col, stretch=tk.YES)
 
     def store_and_display_analysis(self):
         self.tree.delete(*self.tree.get_children())
@@ -152,11 +174,16 @@ class Aplicacion:
         # Configurar las cabeceras de las columnas
         for col in columns:
             self.tree.heading(col, text=col)
-            self.tree.column(col, anchor=tk.CENTER, width=100)
+            self.tree.column(col, anchor=tk.CENTER)
 
         # Insertar los valores en la tabla
         values = [pos_counts[pos] for pos in pos_counts.keys()] + [total_words, num_sentences, avg_words_per_sentence, count_palabras_malsonantes]  # Modificado
         self.tree.insert("", "end", values=values)
+
+        # Ajustar las columnas para que se autoescalen al contenido
+        for col in self.tree["columns"]:
+            self.tree.column(col, stretch=tk.YES)
+
 
     def clear_text_box(self):
         self.text_box.delete("1.0", tk.END)
@@ -168,8 +195,9 @@ class Aplicacion:
 
         advanced_window = tk.Toplevel(self.root)
         advanced_window.title("Análisis Avanzado")
+        advanced_window.configure(bg="#2e2e2e")
 
-        ttk.Label(advanced_window, text="Buscar palabra:").pack(pady=5)
+        ttk.Label(advanced_window, text="Buscar palabra:", style="TLabel").pack(pady=5)
         entry_palabra = ttk.Entry(advanced_window, width=30)
         entry_palabra.pack(pady=5)
 
@@ -178,7 +206,7 @@ class Aplicacion:
             if not palabra:
                 return
             count = self.stored_text.lower().split().count(palabra.lower())
-            ttk.Label(advanced_window, text=f"La palabra '{palabra}' aparece {count} veces.").pack(pady=5)
+            ttk.Label(advanced_window, text=f"La palabra '{palabra}' aparece {count} veces.", style="TLabel").pack(pady=5)
 
         ttk.Button(advanced_window, text="Buscar", command=buscar_palabra).pack(pady=5)
 
@@ -210,19 +238,21 @@ class Aplicacion:
             return
 
         pos_counts, total_words, num_sentences = self.analyzer.analyze_text(self.stored_text)
-        categorias = list(pos_counts.keys())
-        valores = list(pos_counts.values())
-        categorias.extend(["Total Words", "Num Sentences", "Media Palabras por Oración"])
-        valores.extend([total_words, num_sentences, total_words / num_sentences if num_sentences != 0 else 0])
+        count_palabras_malsonantes = self.analyzer.count_palabras_malsonantes(self.stored_text)
+
+        # Agregar la columna de palabras malsonantes a las categorías
+        categorias = list(pos_counts.keys()) + ["Total Words", "Num Sentences", "Media Palabras por Oración", "Palabras malsonantes"]
+        valores = list(pos_counts.values()) + [total_words, num_sentences, total_words / num_sentences if num_sentences != 0 else 0, count_palabras_malsonantes]
 
         plt.figure(figsize=(10, 8))
-        plt.bar(categorias, valores, color='skyblue')
+        plt.bar(categorias, valores, color='#207567')
         plt.xlabel('Categorías y Métricas')
         plt.ylabel('Frecuencia o Valor')
         plt.title('Frecuencia de categorías gramaticales y métricas adicionales')
         plt.xticks(rotation=45, ha='right')
         plt.tight_layout()
         plt.show()
+
 
     def resaltar_errores_ortograficos(self, event):
         self.text_box.tag_remove("highlight", "1.0", tk.END)
