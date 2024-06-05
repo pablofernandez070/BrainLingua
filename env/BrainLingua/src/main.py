@@ -7,6 +7,7 @@ from text_analysis import TextAnalyzer
 from menu import MenuBar
 from importar import leer_pdf, leer_txt, leer_docx
 from analisis_avanzado import abrir_analisis_avanzado
+from chart_converter import convertir_a_grafica
 from SpellCheckManager import SpellCheckManager
 from audio import transcribe_audio
 
@@ -140,7 +141,7 @@ class Aplicacion:
             ("Análisis avanzado", lambda: abrir_analisis_avanzado(self), img_advanced_analysis),
             ("Exportar a Excel", self.exportar_a_excel, img_export_excel),
             ("Importar Audio", self.transcribe_audio_from_button, img_transcribe_audio),
-            ("Convertir a gráfica", self.convertir_a_grafica, img_convert_graph)
+            ("Convertir a gráfica", lambda: convertir_a_grafica(self), img_convert_graph)
         ]
 
         for i, (text, command, image) in enumerate(buttons):
@@ -219,26 +220,7 @@ class Aplicacion:
         workbook.save(file_path)
         messagebox.showinfo("Exportar a Excel", "Los datos han sido exportados correctamente.")
 
-    def convertir_a_grafica(self):
-        if not self.analisis_realizado:
-            messagebox.showerror("Error", "Realice un análisis primero.")
-            return
 
-        pos_counts, total_words, num_sentences = self.analyzer.analyze_text(self.stored_text)
-        count_palabras_malsonantes = self.analyzer.count_palabras_malsonantes(self.stored_text)
-
-        # Agregar la columna de palabras malsonantes a las categorías
-        categorias = list(pos_counts.keys()) + ["Total Words", "Num Sentences", "Media Palabras por Oración", "Palabras malsonantes"]
-        valores = list(pos_counts.values()) + [total_words, num_sentences, total_words / num_sentences if num_sentences != 0 else 0, count_palabras_malsonantes]
-
-        plt.figure(figsize=(10, 8))
-        plt.bar(categorias, valores, color='#207567')
-        plt.xlabel('Categorías y Métricas')
-        plt.ylabel('Frecuencia o Valor')
-        plt.title('Frecuencia de categorías gramaticales y métricas adicionales')
-        plt.xticks(rotation=45, ha='right')
-        plt.tight_layout()
-        plt.show()
 
 
     def resaltar_errores_ortograficos(self, event):
