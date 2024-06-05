@@ -13,7 +13,7 @@ class Aplicacion:
     def __init__(self, root):
         self.root = root
         self.root.title("BrainLingua NLP")
-        self.root.state('zoomed')  # Para iniciar la aplicación en modo maximizado
+        self.root.state('zoomed')  
         self.root.configure(bg="#2e2e2e")
         
         self.Spell_check_manager = SpellCheckManager(language='es')
@@ -38,7 +38,7 @@ class Aplicacion:
                         background="#404040",
                         foreground="white")
         style.configure("TButton", 
-                        background="#207567",  # Tonalidad más oscura del verde azulado
+                        background="#207567",  
                         foreground="white", 
                         padding=10)
         style.map("TButton", 
@@ -98,16 +98,17 @@ class Aplicacion:
         text_frame = tk.Frame(parent_frame, bg="#2e2e2e")
         text_frame.grid(row=0, column=0, sticky="nsew")
 
-        self.text_box = tk.Text(text_frame, width=80, height=10, borderwidth=2, relief="solid", bg='white', fg='black', insertbackground='black', highlightthickness=2, highlightbackground='#207567')
+        self.text_box = tk.Text(text_frame, width=80, height=15, borderwidth=2, relief="solid", bg='white', fg='black', insertbackground='black', highlightthickness=2, highlightbackground='#207567')
         self.text_box.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.text_box.bind("<FocusOut>", self.resaltar_errores_ortograficos)
 
         imagen_boton_delete = PhotoImage(file="env/BrainLingua/src/img/Delete.png").subsample(8, 8)
         ttk.Button(text_frame, image=imagen_boton_delete, command=self.clear_text_box).pack(side=tk.RIGHT, padx=5, pady=5)
-        self.root.image_delete = imagen_boton_delete  # Prevent garbage collection
+        self.root.image_delete = imagen_boton_delete
+
 
     def _add_buttons(self, parent_frame):
-        button_options = {"width": 30}
+        button_options = {"width": 40}
         # Cargar las imágenes para los botones
         img_analysis = PhotoImage(file="env/BrainLingua/src/img/prueba_logo.png").subsample(15, 15)
         img_import_pdf = PhotoImage(file="env/BrainLingua/src/img/PDF.png").subsample(10, 10)
@@ -165,10 +166,13 @@ class Aplicacion:
         # Analizar el texto y obtener las estadísticas
         pos_counts, total_words, num_sentences = self.analyzer.analyze_text(self.stored_text)
         avg_words_per_sentence = self.analyzer.average_words_per_sentence(self.stored_text)
-        count_palabras_malsonantes = self.analyzer.count_palabras_malsonantes(self.stored_text)  # Nuevo
+        count_palabras_malsonantes = self.analyzer.count_palabras_malsonantes(self.stored_text)  
+        
+        # Contar el número de palabras mayores a 6 letras
+        palabras_mayores_seis_letras = sum(1 for word in self.stored_text.split() if len(word) > 6)
 
         # Definir las columnas de la tabla
-        columns = list(pos_counts.keys()) + ["Total Words", "N Sentences", "Avg Words/Sentence", "Palabras Malsonantes"]  # Modificado
+        columns = list(pos_counts.keys()) + ["Total Words", "N Sentences", "Avg Words/Sentence", "Palabras Malsonantes", "Palabras > 6 Letras"]  # Modificado
         self.tree["columns"] = columns
 
         # Configurar las cabeceras de las columnas
@@ -177,8 +181,12 @@ class Aplicacion:
             self.tree.column(col, anchor=tk.CENTER)
 
         # Insertar los valores en la tabla
-        values = [pos_counts[pos] for pos in pos_counts.keys()] + [total_words, num_sentences, avg_words_per_sentence, count_palabras_malsonantes]  # Modificado
+        values = [pos_counts[pos] for pos in pos_counts.keys()] + [total_words, num_sentences, avg_words_per_sentence, count_palabras_malsonantes, palabras_mayores_seis_letras]  # Modificado
         self.tree.insert("", "end", values=values)
+
+        # Ajustar las columnas para que se autoescalen al contenido
+        for col in self.tree["columns"]:
+            self.tree.column(col, stretch=tk.YES)
 
         # Ajustar las columnas para que se autoescalen al contenido
         for col in self.tree["columns"]:
