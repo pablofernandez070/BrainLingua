@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from text_analysis import TextAnalyzer
 from menu import MenuBar
 from importar import leer_pdf, leer_txt, leer_docx
+from analisis_avanzado import abrir_analisis_avanzado
 from SpellCheckManager import SpellCheckManager
 from audio import transcribe_audio
 
@@ -136,7 +137,7 @@ class Aplicacion:
             ("Importar PDF", lambda: leer_pdf(self.text_box), img_import_pdf),
             ("Importar TXT", lambda: leer_txt(self.text_box), img_import_txt),
             ("Importar DOCX", lambda: leer_docx(self.text_box), img_import_docx),
-            ("Análisis avanzado", self.abrir_analisis_avanzado, img_advanced_analysis),
+            ("Análisis avanzado", lambda: abrir_analisis_avanzado(self), img_advanced_analysis),
             ("Exportar a Excel", self.exportar_a_excel, img_export_excel),
             ("Importar Audio", self.transcribe_audio_from_button, img_transcribe_audio),
             ("Convertir a gráfica", self.convertir_a_grafica, img_convert_graph)
@@ -195,28 +196,6 @@ class Aplicacion:
 
     def clear_text_box(self):
         self.text_box.delete("1.0", tk.END)
-
-    def abrir_analisis_avanzado(self):
-        if not self.analisis_realizado:
-            messagebox.showwarning("Error", "Por favor, ejecute un análisis antes de realizar un análisis avanzado.")
-            return
-
-        advanced_window = tk.Toplevel(self.root)
-        advanced_window.title("Análisis Avanzado")
-        advanced_window.configure(bg="#2e2e2e")
-
-        ttk.Label(advanced_window, text="Buscar palabra:", style="TLabel").pack(pady=5)
-        entry_palabra = ttk.Entry(advanced_window, width=30)
-        entry_palabra.pack(pady=5)
-
-        def buscar_palabra():
-            palabra = entry_palabra.get().strip()
-            if not palabra:
-                return
-            count = self.stored_text.lower().split().count(palabra.lower())
-            ttk.Label(advanced_window, text=f"La palabra '{palabra}' aparece {count} veces.", style="TLabel").pack(pady=5)
-
-        ttk.Button(advanced_window, text="Buscar", command=buscar_palabra).pack(pady=5)
 
     def exportar_a_excel(self):
         if not self.analisis_realizado:

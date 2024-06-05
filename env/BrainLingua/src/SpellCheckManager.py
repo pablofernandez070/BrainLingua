@@ -10,6 +10,10 @@ class SpellCheckManager:
         texto_corregido = []
 
         for palabra in palabras:
+            # Eliminar signos de puntuación al final de la palabra
+            while palabra and palabra[-1] in ".,:;?!¿":
+                palabra = palabra[:-1]
+
             if self.spell_checker.unknown([palabra]):
                 # La palabra no está en el diccionario, sugerir correcciones
                 correcciones = self.spell_checker.correction(palabra)
