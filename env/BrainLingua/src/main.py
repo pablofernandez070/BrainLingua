@@ -174,7 +174,7 @@ class Aplicacion:
         palabras_mayores_seis_letras = sum(1 for word in self.stored_text.split() if len(word) > 6)
 
         # Definir las columnas de la tabla
-        columns = list(pos_counts.keys()) + ["Total Words", "N Sentences", "Avg Words/Sentence", "Palabras Malsonantes", "Palabras > 6 Letras"]  # Modificado
+        columns = list(pos_counts.keys()) + ["Total Words", "N Sentences", "Avg Words/Sentence", "PM", "PG"]  # Modificado
         self.tree["columns"] = columns
 
         # Configurar las cabeceras de las columnas
@@ -219,9 +219,6 @@ class Aplicacion:
 
         workbook.save(file_path)
         messagebox.showinfo("Exportar a Excel", "Los datos han sido exportados correctamente.")
-
-
-
 
     def resaltar_errores_ortograficos(self, event):
         self.text_box.tag_remove("highlight", "1.0", tk.END)
