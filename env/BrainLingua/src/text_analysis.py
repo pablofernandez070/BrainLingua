@@ -1,3 +1,4 @@
+# En tu archivo text_analysis.py
 from palabras_malsonantes import contar_palabras_malsonantes
 import spacy
 from collections import Counter
@@ -53,3 +54,8 @@ class TextAnalyzer:
     
     def get_previous_searches(self):
         return self.previous_searches
+
+    def pos_tag_text(self, text):
+        doc = self.nlp(text)
+        pos_tags = [(token.text, token.pos_) for token in doc]
+        return pos_tags

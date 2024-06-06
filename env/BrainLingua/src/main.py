@@ -138,7 +138,7 @@ class Aplicacion:
             ("Importar PDF", lambda: leer_pdf(self.text_box), img_import_pdf),
             ("Importar TXT", lambda: leer_txt(self.text_box), img_import_txt),
             ("Importar DOCX", lambda: leer_docx(self.text_box), img_import_docx),
-            ("Análisis avanzado", lambda: abrir_analisis_avanzado(self), img_advanced_analysis),
+            ("Análisis avanzado", lambda: abrir_analisis_avanzado(self.root, self.text_box.get("1.0", tk.END)), img_advanced_analysis),
             ("Exportar a Excel", self.exportar_a_excel, img_export_excel),
             ("Importar Audio", self.transcribe_audio_from_button, img_transcribe_audio),
             ("Convertir a gráfica", lambda: convertir_a_grafica(self), img_convert_graph)
