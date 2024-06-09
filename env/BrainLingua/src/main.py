@@ -108,38 +108,41 @@ class Aplicacion:
         ttk.Button(text_frame, image=imagen_boton_delete, command=self.clear_text_box).pack(side=tk.RIGHT, padx=5, pady=5)
         self.root.image_delete = imagen_boton_delete
 
+        img_analysis = PhotoImage(file="env/BrainLingua/src/img/EJECUTAR.png").subsample(15, 15)
+        ttk.Button(text_frame, image=img_analysis, text='Ejecutar', compound=tk.LEFT, command=self.store_and_display_analysis).pack(side=tk.RIGHT, padx=5, pady=5)
+        self.root.image_analysis = img_analysis
+
+        text_frame.grid_rowconfigure(0, weight=1)
+        text_frame.grid_columnconfigure(0, weight=1)
 
     def _add_buttons(self, parent_frame):
         button_options = {"width": 40}
         # Cargar las imágenes para los botones
-        img_analysis = PhotoImage(file="env/BrainLingua/src/img/prueba_logo.png").subsample(15, 15)
+        
         img_import_pdf = PhotoImage(file="env/BrainLingua/src/img/PDF.png").subsample(10, 10)
         img_import_txt = PhotoImage(file="env/BrainLingua/src/img/TXT.png").subsample(10, 10)
         img_import_docx = PhotoImage(file="env/BrainLingua/src/img/DOCX.png").subsample(10, 10)
-        img_advanced_analysis = PhotoImage(file="env/BrainLingua/src/img/prueba_logo.png").subsample(15, 15)
-        img_export_excel = PhotoImage(file="env/BrainLingua/src/img/SAVE.png").subsample(10, 10)
+        img_advanced_analysis = PhotoImage(file="env/BrainLingua/src/img/ANALISIS_AVANZADO.png").subsample(15, 15)
         img_transcribe_audio = PhotoImage(file="env/BrainLingua/src/img/MP3.png").subsample(10, 10)
         img_convert_graph = PhotoImage(file="env/BrainLingua/src/img/GRAFICA.png").subsample(10, 10)
 
         # Almacenar las imágenes para evitar que se recojan como basura
         self.root.images = {
-            "analysis": img_analysis,
+            
             "import_pdf": img_import_pdf,
             "import_txt": img_import_txt,
             "import_docx": img_import_docx,
             "advanced_analysis": img_advanced_analysis,
-            "export_excel": img_export_excel,
             "transcribe_audio": img_transcribe_audio,
             "convert_graph": img_convert_graph
         }
 
         buttons = [
-            ("Ejecutar Análisis", self.store_and_display_analysis, img_analysis),
+            
             ("Importar PDF", lambda: leer_pdf(self.text_box), img_import_pdf),
             ("Importar TXT", lambda: leer_txt(self.text_box), img_import_txt),
             ("Importar DOCX", lambda: leer_docx(self.text_box), img_import_docx),
             ("Análisis avanzado", lambda: abrir_analisis_avanzado(self.root, self.text_box.get("1.0", tk.END)), img_advanced_analysis),
-            ("Exportar a Excel", self.exportar_a_excel, img_export_excel),
             ("Importar Audio", self.transcribe_audio_from_button, img_transcribe_audio),
             ("Convertir a gráfica", lambda: convertir_a_grafica(self), img_convert_graph)
         ]
@@ -149,7 +152,7 @@ class Aplicacion:
 
     def _setup_treeview(self, parent_frame):
         self.tree = ttk.Treeview(parent_frame, show="headings")
-        self.tree.grid(row=1, column=0, sticky="nsew")
+        self.tree.grid(row=1, column=0, sticky="nsew")  # Treeview en la fila 1
         parent_frame.grid_rowconfigure(1, weight=1)
         parent_frame.grid_columnconfigure(0, weight=1)
 
@@ -157,6 +160,19 @@ class Aplicacion:
         self.tree.column("#0", stretch=tk.YES)
         for col in self.tree["columns"]:
             self.tree.column(col, stretch=tk.YES)
+
+        # Crear un frame para el botón debajo del Treeview
+        button_frame = tk.Frame(parent_frame, bg="#2e2e2e")
+        button_frame.grid(row=2, column=0, sticky="ew")  # Botón en la fila 2
+
+        # BOTON SAVE
+        img_save = PhotoImage(file="env/BrainLingua/src/img/SAVE.png").subsample(15, 15)
+        ttk.Button(button_frame, image=img_save, text='Guardar', compound=tk.LEFT, command=self.exportar_a_excel).pack(side=tk.RIGHT, padx=5, pady=5)
+        self.root.img_export_excel = img_save
+
+        parent_frame.grid_rowconfigure(2, weight=0)
+        parent_frame.grid_columnconfigure(0, weight=1)
+
 
     def store_and_display_analysis(self):
         self.tree.delete(*self.tree.get_children())
