@@ -7,6 +7,7 @@ class TextAnalyzer:
     def __init__(self):
         self.nlp = spacy.load("es_core_news_md")
         self.previous_searches = []
+        self.previous_analyses = []  # Lista para almacenar los resultados de cada análisis
 
         # Definir las variables que se inicializan en 0
         self.variables = {
@@ -32,7 +33,7 @@ class TextAnalyzer:
             "N Sentences": 0,
             "Avg Words/Sentence": 0,
             "PM": 0,  # Palabras malsonantes
-            #"PG": 0,  # Palabras mayores a 6 letras
+            "PG": 0,  # Palabras mayores a 6 letras
         }
 
     def analyze_text(self, text):
@@ -72,14 +73,16 @@ class TextAnalyzer:
         palabras_mayores_seis_letras = sum(1 for word in text.split() if len(word) > 6)
         self.variables["PG"] = palabras_mayores_seis_letras
 
+        # Guardar los resultados del análisis actual en la lista de análisis anteriores
+        self.previous_analyses.append(self.variables.copy())  # Usamos copy() para evitar que se sobrescriban los resultados
+
         # Guardar la búsqueda actual en la lista de búsquedas anteriores
         self.previous_searches.append(text)
 
         # Imprimir la lista de búsquedas anteriores en la consola
         print("Búsquedas anteriores:", self.previous_searches)
 
-        return self.variables
-
+        return self.previous_analyses
 
     def reset_variables(self):
         for key in self.variables:
@@ -99,9 +102,12 @@ class TextAnalyzer:
     def count_palabras_malsonantes(self, text):
         # Utilizar la función importada desde palabras_malsonantes
         return contar_palabras_malsonantes(text)
-    
+
     def get_previous_searches(self):
         return self.previous_searches
+
+    def get_previous_analyses(self):
+        return self.previous_analyses
 
     def pos_tag_text(self, text):
         doc = self.nlp(text)

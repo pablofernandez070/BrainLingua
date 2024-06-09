@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
 import matplotlib.pyplot as plt
+from text_analysis import TextAnalyzer
 
 def convertir_a_grafica(self):
     if not self.analisis_realizado:
@@ -9,7 +10,7 @@ def convertir_a_grafica(self):
         return
 
     # Obtener el diccionario de variables del análisis de texto
-    variables = self.analyzer.analyze_text(self.stored_text)
+    variables = variables = self.analyzer.get_previous_analyses()[-1]
     
     # Definir las categorías y valores para la gráfica
     categorias = list(variables.keys())  # Las categorías son las claves del diccionario

@@ -8,7 +8,6 @@ from menu import MenuBar
 from importar import leer_pdf, leer_txt, leer_docx
 from analisis_avanzado import abrir_analisis_avanzado
 from chart_converter import convertir_a_grafica
-from SpellCheckManager import SpellCheckManager
 from audio import transcribe_audio
 
 class Aplicacion:
@@ -18,7 +17,6 @@ class Aplicacion:
         self.root.state('zoomed')  
         self.root.configure(bg="#2e2e2e")
         
-        self.Spell_check_manager = SpellCheckManager(language='es')
         self.analisis_realizado = False
         
         self.menu_bar = MenuBar(root)
@@ -54,6 +52,7 @@ class Aplicacion:
                         fieldbackground="#2e2e2e")
 
     def _setup_widgets(self):
+        # Agregar logotipo y texto de bienvenida
         self._add_logo()
         self._add_welcome_text()
 
@@ -69,6 +68,7 @@ class Aplicacion:
         self.right_frame = tk.Frame(self.main_frame, bg="#2e2e2e")
         self.right_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
+        # Agregar botones, cuadro de texto y tabla de resultados
         self._add_buttons(self.left_frame)
         self._add_text_box(self.right_frame)
         self._setup_treeview(self.right_frame)
@@ -102,12 +102,13 @@ class Aplicacion:
 
         self.text_box = tk.Text(text_frame, width=80, height=15, borderwidth=2, relief="solid", bg='white', fg='black', insertbackground='black', highlightthickness=2, highlightbackground='#207567')
         self.text_box.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        self.text_box.bind("<FocusOut>", self.resaltar_errores_ortograficos)
 
+        # Agregar botón para borrar el texto
         imagen_boton_delete = PhotoImage(file="env/BrainLingua/src/img/Delete.png").subsample(8, 8)
         ttk.Button(text_frame, image=imagen_boton_delete, command=self.clear_text_box).pack(side=tk.RIGHT, padx=5, pady=5)
         self.root.image_delete = imagen_boton_delete
 
+        # Agregar botón para realizar el análisis
         img_analysis = PhotoImage(file="env/BrainLingua/src/img/EJECUTAR.png").subsample(15, 15)
         ttk.Button(text_frame, image=img_analysis, text='Ejecutar', compound=tk.LEFT, command=self.store_and_display_analysis).pack(side=tk.RIGHT, padx=5, pady=5)
         self.root.image_analysis = img_analysis
@@ -117,8 +118,8 @@ class Aplicacion:
 
     def _add_buttons(self, parent_frame):
         button_options = {"width": 40}
+
         # Cargar las imágenes para los botones
-        
         img_import_pdf = PhotoImage(file="env/BrainLingua/src/img/PDF.png").subsample(10, 10)
         img_import_txt = PhotoImage(file="env/BrainLingua/src/img/TXT.png").subsample(10, 10)
         img_import_docx = PhotoImage(file="env/BrainLingua/src/img/DOCX.png").subsample(10, 10)
@@ -128,7 +129,6 @@ class Aplicacion:
 
         # Almacenar las imágenes para evitar que se recojan como basura
         self.root.images = {
-            
             "import_pdf": img_import_pdf,
             "import_txt": img_import_txt,
             "import_docx": img_import_docx,
@@ -137,8 +137,8 @@ class Aplicacion:
             "convert_graph": img_convert_graph
         }
 
+        # Definir los botones y sus comandos
         buttons = [
-            
             ("Importar PDF", lambda: leer_pdf(self.text_box), img_import_pdf),
             ("Importar TXT", lambda: leer_txt(self.text_box), img_import_txt),
             ("Importar DOCX", lambda: leer_docx(self.text_box), img_import_docx),
@@ -147,10 +147,12 @@ class Aplicacion:
             ("Convertir a gráfica", lambda: convertir_a_grafica(self), img_convert_graph)
         ]
 
+        # Agregar los botones al frame
         for i, (text, command, image) in enumerate(buttons):
             ttk.Button(parent_frame, text=text, command=command, image=image, compound=tk.LEFT, **button_options).pack(pady=5)
 
     def _setup_treeview(self, parent_frame):
+        # Crear el Treeview para mostrar los resultados del análisis
         self.tree = ttk.Treeview(parent_frame, show="headings")
         self.tree.grid(row=1, column=0, sticky="nsew")  # Treeview en la fila 1
         parent_frame.grid_rowconfigure(1, weight=1)
@@ -173,8 +175,8 @@ class Aplicacion:
         parent_frame.grid_rowconfigure(2, weight=0)
         parent_frame.grid_columnconfigure(0, weight=1)
 
-
     def store_and_display_analysis(self):
+        # Limpiar resultados anteriores
         self.tree.delete(*self.tree.get_children())
         self.stored_text = self.text_box.get("1.0", tk.END).strip()
         if not self.stored_text:
@@ -184,29 +186,27 @@ class Aplicacion:
         # Analizar el texto y obtener las estadísticas
         analysis_results = self.analyzer.analyze_text(self.stored_text)
 
-        # Contar el número de palabras mayores a 6 letras
-        palabras_mayores_seis_letras = sum(1 for word in self.stored_text.split() if len(word) > 6)
+        # Definir las columnas de la tabla si hay resultados
+        if analysis_results:
+            columns = list(analysis_results[0].keys())
+            self.tree["columns"] = columns
 
-        # Definir las columnas de la tabla
-        columns = list(analysis_results.keys()) 
-        self.tree["columns"] = columns
+            # Configurar las cabeceras de las columnas
+            for col in columns:
+                self.tree.heading(col, text=col)
+                self.tree.column(col, anchor=tk.CENTER)
 
-        # Configurar las cabeceras de las columnas
-        for col in columns:
-            self.tree.heading(col, text=col)
-            self.tree.column(col, anchor=tk.CENTER)
+            # Insertar los valores en la tabla
+            for result in analysis_results:
+                values = [result[col] for col in columns]
+                self.tree.insert("", "end", values=values)
 
-        # Insertar los valores en la tabla
-        values = [analysis_results[col] for col in analysis_results.keys()]  
-        self.tree.insert("", "end", values=values)
-
-        # Ajustar las columnas para que se autoescalen al contenido
-        for col in self.tree["columns"]:
-            self.tree.column(col, stretch=tk.YES)
-
-
+            # Ajustar las columnas para que se autoescalen al contenido
+            for col in self.tree["columns"]:
+                self.tree.column(col, stretch=tk.YES)
 
     def clear_text_box(self):
+        # Limpiar el cuadro de texto
         self.text_box.delete("1.0", tk.END)
 
     def exportar_a_excel(self):
@@ -231,32 +231,17 @@ class Aplicacion:
         workbook.save(file_path)
         messagebox.showinfo("Exportar a Excel", "Los datos han sido exportados correctamente.")
 
-    def resaltar_errores_ortograficos(self, event):
-        self.text_box.tag_remove("highlight", "1.0", tk.END)
-        texto_actual = self.text_box.get("1.0", tk.END).strip()
-        palabras_incorrectas = self.Spell_check_manager.obtener_palabras_incorrectas(texto_actual)
-
-        for palabra in palabras_incorrectas:
-            start_index = "1.0"
-            while True:
-                start_index = self.text_box.search(palabra, start_index, tk.END)
-                if not start_index:
-                    break
-                end_index = f"{start_index}+{len(palabra)}c"
-                self.text_box.tag_add("highlight", start_index, end_index)
-                start_index = end_index
-
-        self.text_box.tag_config("highlight", foreground="red")
-
     def transcribe_audio_from_button(self):
+        # Transcribir audio desde un archivo
         audio_file_path = filedialog.askopenfilename(filetypes=[("Archivos de audio MP3", "*.mp3")])
         if audio_file_path:
             transcription = transcribe_audio(audio_file_path)
-            print("Texto transcrito:", transcription)
+            # print("Texto transcrito:", transcription)  # Esta línea se ha comentado para evitar la impresión
         else:
             print("No se seleccionó ningún archivo MP3.")
 
 def main():
+    # Iniciar la aplicación
     root = tk.Tk()
     app = Aplicacion(root)
     root.mainloop()
