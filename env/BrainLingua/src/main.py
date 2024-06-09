@@ -182,15 +182,13 @@ class Aplicacion:
         self.analisis_realizado = True
 
         # Analizar el texto y obtener las estadísticas
-        pos_counts, total_words, num_sentences = self.analyzer.analyze_text(self.stored_text)
-        avg_words_per_sentence = self.analyzer.average_words_per_sentence(self.stored_text)
-        count_palabras_malsonantes = self.analyzer.count_palabras_malsonantes(self.stored_text)  
-        
+        analysis_results = self.analyzer.analyze_text(self.stored_text)
+
         # Contar el número de palabras mayores a 6 letras
         palabras_mayores_seis_letras = sum(1 for word in self.stored_text.split() if len(word) > 6)
 
         # Definir las columnas de la tabla
-        columns = list(pos_counts.keys()) + ["Total Words", "N Sentences", "Avg Words/Sentence", "PM", "PG"]  # Modificado
+        columns = list(analysis_results.keys()) 
         self.tree["columns"] = columns
 
         # Configurar las cabeceras de las columnas
@@ -199,16 +197,13 @@ class Aplicacion:
             self.tree.column(col, anchor=tk.CENTER)
 
         # Insertar los valores en la tabla
-        values = [pos_counts[pos] for pos in pos_counts.keys()] + [total_words, num_sentences, avg_words_per_sentence, count_palabras_malsonantes, palabras_mayores_seis_letras]  # Modificado
+        values = [analysis_results[col] for col in analysis_results.keys()]  
         self.tree.insert("", "end", values=values)
 
         # Ajustar las columnas para que se autoescalen al contenido
         for col in self.tree["columns"]:
             self.tree.column(col, stretch=tk.YES)
 
-        # Ajustar las columnas para que se autoescalen al contenido
-        for col in self.tree["columns"]:
-            self.tree.column(col, stretch=tk.YES)
 
 
     def clear_text_box(self):

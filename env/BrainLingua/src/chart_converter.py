@@ -8,14 +8,14 @@ def convertir_a_grafica(self):
         messagebox.showerror("Error", "Realice un análisis primero.")
         return
 
-    pos_counts, total_words, num_sentences = self.analyzer.analyze_text(self.stored_text)
-    count_palabras_malsonantes = self.analyzer.count_palabras_malsonantes(self.stored_text)
-    palabras_mayores_seis_letras = sum(1 for word in self.stored_text.split() if len(word) > 6)
+    # Obtener el diccionario de variables del análisis de texto
+    variables = self.analyzer.analyze_text(self.stored_text)
+    
+    # Definir las categorías y valores para la gráfica
+    categorias = list(variables.keys())  # Las categorías son las claves del diccionario
+    valores = list(variables.values())   # Los valores son los valores del diccionario
 
-    # Agregar la columna de palabras malsonantes a las categorías
-    categorias = list(pos_counts.keys()) + ["Total Words", "Num Sentences", "Media Palabras por Oración", "PM", "PG"]
-    valores = list(pos_counts.values()) + [total_words, num_sentences, total_words / num_sentences if num_sentences != 0 else 0, count_palabras_malsonantes, palabras_mayores_seis_letras]
-
+    # Crear la gráfica de barras
     plt.figure(figsize=(10, 8))
     barras = plt.bar(categorias, valores, color='#207567')
     plt.xlabel('Categorías y Métricas')
@@ -30,3 +30,4 @@ def convertir_a_grafica(self):
 
     plt.tight_layout()
     plt.show()
+
