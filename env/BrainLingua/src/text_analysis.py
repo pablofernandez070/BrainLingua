@@ -74,7 +74,7 @@ class TextAnalyzer:
         self.variables["PG"] = palabras_mayores_seis_letras
 
         # Guardar los resultados del análisis actual en la lista de análisis anteriores
-        self.previous_analyses.append(self.variables.copy())  # Usamos copy() para evitar que se sobrescriban los resultados
+        self.previous_analyses.append(self.variables.copy())  # Copy evita que se sobreescriba
 
         # Guardar la búsqueda actual en la lista de búsquedas anteriores
         self.previous_searches.append(text)

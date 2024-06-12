@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 
 class MenuBar:
     def __init__(self, root):
@@ -28,21 +28,43 @@ class MenuBar:
         self.menu_bar.add_cascade(label="Configuración", menu=self.config_menu)
 
         # Agregar opciones al menú Archivo
-        self.file_menu.add_command(label="Abrir")
+        self.file_menu.add_command(label="Abrir", command= self.show_pendiente_info)
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label="Guardar", command= self.show_pendiente_info)
+        self.file_menu.add_command(label="Guardar como...", command= self.show_pendiente_info)
+        self.file_menu.add_command(label="Recientes", command= self.show_pendiente_info)
+        self.file_menu.add_command(label="Imprimir", command= self.show_pendiente_info)
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Salir", command=root.quit)
 
         # Agregar opciones al menú Diccionario
-        self.dictionary_menu.add_command(label="Buscar")
-        self.dictionary_menu.add_command(label="Añadir")
-        self.dictionary_menu.add_command(label="Eliminar")
+        self.dictionary_menu.add_command(label="Buscar", command= self.show_pendiente_info)
+        self.dictionary_menu.add_command(label="Añadir", command= self.show_pendiente_info)
+        self.dictionary_menu.add_command(label="Eliminar", command= self.show_pendiente_info)
 
         # Agregar opciones al menú Ayuda
-        self.help_menu.add_command(label="Acerca de")
+        self.help_menu.add_command(label="Acerca de", command=self.show_about_info)
 
         # Agregar opciones al menú Configuración
-        self.config_menu.add_command(label="Opción 1")
-        self.config_menu.add_command(label="Opción 2")
+        self.config_menu.add_command(label="Opción 1", command= self.show_pendiente_info)
+        self.config_menu.add_command(label="Opción 2", command= self.show_pendiente_info)
 
         # Configurar la barra de menú en la ventana principal
         root.config(menu=self.menu_bar)
+
+    def show_about_info(self):
+        about_message = (
+            "BrainLingua\n"
+            "Versión 1.0\n"
+            "Aplicación para la transcripción y análisis de texto y audio.\n\n"
+            "Desarrollado por: Pablo Fernández Planas\n"
+            "Contacto: pablofernandezplanas@gmail.com"
+        )
+        messagebox.showinfo("Acerca de BrainLingua", about_message)
+
+    def show_pendiente_info(self):
+        about_message = (
+            "La presente funcionalidad está en desarrollo\n"
+            "Disculpe las molestias\n"
+        )
+        messagebox.showinfo("En Desarrollo", about_message)

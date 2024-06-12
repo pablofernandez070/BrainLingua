@@ -3,12 +3,14 @@ from tkinter import ttk, PhotoImage, filedialog, messagebox
 from PIL import Image, ImageTk
 import openpyxl
 import matplotlib.pyplot as plt
+
 from text_analysis import TextAnalyzer
 from menu import MenuBar
 from importar import leer_pdf, leer_txt, leer_docx
 from analisis_avanzado import abrir_analisis_avanzado
 from chart_converter import convertir_a_grafica
 from audio import transcribe_audio
+from excel_exporter import exportar_a_excel
 
 class Aplicacion:
     def __init__(self, root):
@@ -169,7 +171,7 @@ class Aplicacion:
 
         # BOTON SAVE
         img_save = PhotoImage(file="env/BrainLingua/src/img/SAVE.png").subsample(15, 15)
-        ttk.Button(button_frame, image=img_save, text='Guardar', compound=tk.LEFT, command=self.exportar_a_excel).pack(side=tk.RIGHT, padx=5, pady=5)
+        ttk.Button(button_frame, image=img_save, text='Guardar', compound=tk.LEFT, command=lambda: exportar_a_excel(self.tree, self.analisis_realizado)).pack(side=tk.RIGHT, padx=5, pady=5)
         self.root.img_export_excel = img_save
 
         parent_frame.grid_rowconfigure(2, weight=0)
@@ -208,28 +210,6 @@ class Aplicacion:
     def clear_text_box(self):
         # Limpiar el cuadro de texto
         self.text_box.delete("1.0", tk.END)
-
-    def exportar_a_excel(self):
-        if not self.analisis_realizado:
-            messagebox.showwarning("Exportar a Excel", "Por favor, realice un análisis antes de exportar los datos.")
-            return
-
-        file_path = filedialog.asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")])
-        if not file_path:
-            return
-
-        workbook = openpyxl.Workbook()
-        sheet = workbook.active
-
-        for idx, col in enumerate(self.tree["columns"], start=1):
-            sheet.cell(row=1, column=idx, value=col)
-
-        for idx, item in enumerate(self.tree.get_children(), start=2):
-            for col_idx, col in enumerate(self.tree["columns"], start=1):
-                sheet.cell(row=idx, column=col_idx, value=self.tree.set(item, col))
-
-        workbook.save(file_path)
-        messagebox.showinfo("Exportar a Excel", "Los datos han sido exportados correctamente.")
 
     def transcribe_audio_from_button(self):
         # Transcribir audio desde un archivo
