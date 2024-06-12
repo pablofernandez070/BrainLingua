@@ -29,9 +29,9 @@ class TextAnalyzer:
             "SYM": 0,  # Símbolos
             "VERB": 0,  # Verbos
             "X": 0,  # Otros
-            "Total Words": 0,
-            "N Sentences": 0,
-            "Avg Words/Sentence": 0,
+            "TW": 0,
+            "NS": 0,
+            "Avg W/S": 0,
             "PM": 0,  # Palabras malsonantes
             "PG": 0,  # Palabras mayores a 6 letras
         }
@@ -48,12 +48,12 @@ class TextAnalyzer:
 
         # Contar número de oraciones
         num_sentences = len(sentences)
-        self.variables["N Sentences"] = num_sentences
+        self.variables["NS"] = num_sentences
 
         # Calcular el recuento total de palabras
         words = [token.text for token in doc if token.is_alpha]
         total_words = len(words)
-        self.variables["Total Words"] = total_words
+        self.variables["TW"] = total_words
 
         # Obtener todas las categorías gramaticales posibles
         pos_counts = Counter([token.pos_ for token in doc])
@@ -63,7 +63,7 @@ class TextAnalyzer:
 
         # Calcular el promedio de palabras por oración
         avg_words_per_sentence = self.average_words_per_sentence(text)
-        self.variables["Avg Words/Sentence"] = avg_words_per_sentence
+        self.variables["Avg W/S"] = avg_words_per_sentence
 
         # Contar palabras malsonantes
         count_palabras_malsonantes = self.count_palabras_malsonantes(text)

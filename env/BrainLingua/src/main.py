@@ -105,6 +105,12 @@ class Aplicacion:
         self.text_box = tk.Text(text_frame, width=80, height=15, borderwidth=2, relief="solid", bg='white', fg='black', insertbackground='black', highlightthickness=2, highlightbackground='#207567')
         self.text_box.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
+        # Placeholder functionality
+        self.placeholder_text = "Inserte el texto a analizar..."
+        self.text_box.insert("1.0", self.placeholder_text)
+        self.text_box.bind("<FocusIn>", self._clear_placeholder)
+        self.text_box.bind("<FocusOut>", self._add_placeholder)
+
         # Agregar botón para borrar el texto
         imagen_boton_delete = PhotoImage(file="env/BrainLingua/src/img/Delete.png").subsample(8, 8)
         ttk.Button(text_frame, image=imagen_boton_delete, command=self.clear_text_box).pack(side=tk.RIGHT, padx=5, pady=5)
@@ -117,6 +123,16 @@ class Aplicacion:
 
         text_frame.grid_rowconfigure(0, weight=1)
         text_frame.grid_columnconfigure(0, weight=1)
+
+    def _clear_placeholder(self, event):
+        if self.text_box.get("1.0", tk.END).strip() == self.placeholder_text:
+            self.text_box.delete("1.0", tk.END)
+            self.text_box.config(fg='black')
+
+    def _add_placeholder(self, event):
+        if not self.text_box.get("1.0", tk.END).strip():
+            self.text_box.insert("1.0", self.placeholder_text)
+            self.text_box.config(fg='grey')
 
     def _add_buttons(self, parent_frame):
         button_options = {"width": 40}
