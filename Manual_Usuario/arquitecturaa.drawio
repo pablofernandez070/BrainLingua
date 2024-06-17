@@ -1,0 +1,67 @@
+<mxfile host="app.diagrams.net" modified="2024-06-13T12:19:27.696Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0" etag="dOHGE1WnOO3OoqafCaoC" version="24.5.3" type="device">
+  <diagram name="Page-1" id="wJiaj0ZQ-x1NkN2hN2ZW">
+    <mxGraphModel dx="786" dy="505" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="QVW8msBSfU4o_h0FvbBP-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;shape=link;" edge="1" parent="1" source="QVW8msBSfU4o_h0FvbBP-1" target="QVW8msBSfU4o_h0FvbBP-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="QVW8msBSfU4o_h0FvbBP-1" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="40" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="QVW8msBSfU4o_h0FvbBP-2" value="&lt;font style=&quot;font-size: 14px;&quot;&gt;&lt;b&gt;Tkinter GUI&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="200" y="45" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="QVW8msBSfU4o_h0FvbBP-3" value="importación de texto" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="230" y="75" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="QVW8msBSfU4o_h0FvbBP-4" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="160" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="QVW8msBSfU4o_h0FvbBP-5" value="&lt;font style=&quot;font-size: 14px;&quot;&gt;&lt;b&gt;Tkinter GUI&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="200" y="165" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="QVW8msBSfU4o_h0FvbBP-6" value="Edición&lt;div&gt;de texto&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="230" y="195" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="QVW8msBSfU4o_h0FvbBP-7" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="280" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="QVW8msBSfU4o_h0FvbBP-8" value="&lt;font style=&quot;font-size: 14px;&quot;&gt;&lt;b&gt;Ejecución Analisis&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="200" y="285" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="QVW8msBSfU4o_h0FvbBP-9" value="NLP SpaCy" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="230" y="321" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="QVW8msBSfU4o_h0FvbBP-10" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="400" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="QVW8msBSfU4o_h0FvbBP-11" value="&lt;font style=&quot;font-size: 14px;&quot;&gt;&lt;b&gt;Resultados&lt;/b&gt;&lt;/font&gt;&lt;div&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;&lt;b&gt;Análisis&lt;/b&gt;&lt;/font&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="200" y="405" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="QVW8msBSfU4o_h0FvbBP-12" value="tags, entidades" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="230" y="442" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="QVW8msBSfU4o_h0FvbBP-13" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="520" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="QVW8msBSfU4o_h0FvbBP-14" value="&lt;font style=&quot;font-size: 14px;&quot;&gt;&lt;b&gt;Tkinter GUI&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="200" y="525" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="QVW8msBSfU4o_h0FvbBP-15" value="mostrar datos en tabla" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="230" y="559" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="QVW8msBSfU4o_h0FvbBP-19" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="380" y="559" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="QVW8msBSfU4o_h0FvbBP-20" value="&lt;font style=&quot;font-size: 14px;&quot;&gt;&lt;b&gt;Análisis Avanzado&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="380" y="564" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="QVW8msBSfU4o_h0FvbBP-21" value="mostrar datos en tabla" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="410" y="598" width="60" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
